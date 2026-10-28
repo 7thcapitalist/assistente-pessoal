@@ -1,0 +1,12 @@
+[Unit]
+Description=Painel do assistente do João
+After=network-online.target tailscaled.service
+
+[Service]
+WorkingDirectory=%h/assistente-pessoal
+Environment=ASSISTENTE_DATA=%h/assistente-pessoal/data
+ExecStart=%h/assistente-pessoal/bin/start.sh
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
