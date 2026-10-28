@@ -59,7 +59,7 @@ function draftCard(d, actions) {
   const media = (d.media || []).filter((m) => m.path).map((m) => el('img', { src: '/media?p=' + encodeURIComponent(m.path), alt: m.alt || '' }));
   return el('div', { className: 'card' },
     el('div', { className: 'row' }, el('strong', { textContent: d.title }),
-      el('span', {}, el('span', { className: 'tag ' + d.channel, textContent: CHANNELS[d.channel] || d.channel }), ' ', el('span', { className: 'tag ' + d.status, textContent: { pending: 'aguardando', approved: 'aprovado', failed: 'falhou', published: 'publicado', rejected: 'recusado' }[d.status] }))),
+      el('span', {}, el('span', { className: 'tag ' + d.channel, textContent: CHANNELS[d.channel] || d.channel }), ' ', el('span', { className: 'tag ' + d.status, textContent: { pending: 'aguardando', approved: 'aprovado', publishing: 'publicando', failed: 'falhou', published: 'publicado', rejected: 'recusado' }[d.status] }))),
     el('div', { className: 'mut', textContent: `${d.routine} · criado ${fmt(d.created_at)}` + (d.scheduled_for ? ` · publicar em ${fmt(d.scheduled_for)}` : '') }),
     media.length ? el('div', { className: 'media' }, media) : null,
     el('pre', { className: 'body', textContent: d.body }),
@@ -82,7 +82,7 @@ function fila() {
   for (const d of S.pending) (groups[d.channel] ??= []).push(d);
   return Object.entries(groups).flatMap(([ch, ds]) => [
     el('h3', { textContent: `${CHANNELS[ch] || ch} (${ds.length})` }),
-    ...ds.map((d) => editing === d.id ? editForm(d) : draftCard(d, d.status === 'approved'
+    ...ds.map((d) => editing === d.id ? editForm(d) : draftCard(d, ['approved', 'publishing'].includes(d.status)
       ? el('div', { className: 'mut', textContent: 'Aprovado, aguardando o horário de publicar.' })
       : el('div', { className: 'acts' },
         el('button', { className: 'b go', textContent: d.status === 'failed' ? 'Aprovar de novo' : 'Aprovar', onclick: act(() => api(`/drafts/${d.id}/approve`, 'POST')) }),

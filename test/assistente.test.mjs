@@ -98,3 +98,42 @@ test('API: exige cabeçalho CSRF, aprova pelo painel', async () => {
   assert.equal((await fetch(`${base}/`)).status, 200);
   srv.close();
 });
+
+test('publicação atômica: timer, cliques e Aprovar repetido geram uma só chamada externa', async () => {
+  const calls = [];
+  const dir = dirWith(`export default { id: 'r1', name: 'R1', channel: 'linkedin', async run() {},
+    async publish(d) { globalThis.__calls.push(d.id); await new Promise((r) => setTimeout(r, 30)); return { url: 'https://x.test/' + d.id }; } };`);
+  globalThis.__calls = calls;
+  const db = store.openDb(':memory:');
+  const { routines } = await loadRoutines(dir);
+  const { publishApproved } = await import('../src/runner.mjs');
+  const d = store.createDraft(db, 'r1', 'linkedin', { title: 'a', body: 'b' });
+  store.decide(db, d.id, 'approve');
+  const all = await Promise.all([publishApproved(db, routines), publishApproved(db, routines), publishApproved(db, routines)]);
+  assert.equal(calls.length, 1);
+  assert.equal(all.flat().length, 1);
+  assert.equal(store.getDraft(db, d.id).status, 'published');
+  // Aprovar de novo durante a publicação é recusado e não republica
+  const d2 = store.createDraft(db, 'r1', 'linkedin', { title: 'a', body: 'b' });
+  store.decide(db, d2.id, 'approve');
+  const p = publishApproved(db, routines);
+  assert.equal(store.getDraft(db, d2.id).status, 'publishing');
+  assert.throws(() => store.decide(db, d2.id, 'approve'), /publishing/);
+  assert.throws(() => store.decide(db, d2.id, 'reject'), /publishing/);
+  await p; await publishApproved(db, routines);
+  assert.equal(calls.length, 2);
+  delete globalThis.__calls;
+});
+
+test('editar rascunho rejeita scheduledFor inválido (store e API)', async () => {
+  const db = store.openDb(':memory:'), dir = dirWith(routineSrc());
+  const d = store.createDraft(db, 'r1', 'linkedin', { title: 'a', body: 'b', scheduledFor: '2026-11-01T00:00:00Z' });
+  for (const bad of ['amanhã', 123, {}]) assert.throws(() => store.editDraft(db, d.id, { scheduledFor: bad }), /scheduledFor inválido/);
+  assert.equal(store.getDraft(db, d.id).scheduled_for, '2026-11-01T00:00:00Z');
+  assert.equal(store.editDraft(db, d.id, { scheduledFor: '' }).scheduled_for, null);
+  const srv = createServer(createApp(db, { routinesDir: dir })); await new Promise((ok) => srv.listen(0, '127.0.0.1', ok));
+  const res = await fetch(`http://127.0.0.1:${srv.address().port}/api/drafts/${d.id}`, { method: 'PUT', headers: { 'x-assistente': '1', 'content-type': 'application/json' }, body: JSON.stringify({ scheduledFor: 'não-é-data' }) });
+  assert.equal(res.status, 409);
+  assert.equal(store.getDraft(db, d.id).scheduled_for, null);
+  srv.close();
+});

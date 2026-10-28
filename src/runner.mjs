@@ -74,7 +74,12 @@ export async function runRoutine(db, routine, { dry = false } = {}) {
 export async function publishApproved(db, routines, at = new Date()) {
   const results = [];
   for (const d of store.listDrafts(db, { status: 'approved' }).reverse()) {
-    if (d.scheduled_for && new Date(d.scheduled_for) > at) continue;
+    if (d.scheduled_for) {
+      const when = new Date(d.scheduled_for);
+      if (Number.isNaN(when.getTime())) { if (store.claimForPublish(db, d.id)) { store.markFailed(db, d.id, 'scheduledFor inválido'); results.push({ id: d.id, ok: false }); } continue; }
+      if (when > at) continue;
+    }
+    if (!store.claimForPublish(db, d.id)) continue; // outro ciclo/clique já reservou
     const r = routines.get(d.routine);
     if (!r?.publish) { store.markFailed(db, d.id, r ? 'a rotina não implementa publish()' : 'rotina não encontrada'); results.push({ id: d.id, ok: false }); continue; }
     try {

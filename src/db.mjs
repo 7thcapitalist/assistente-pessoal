@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
-export const STATUS = ['pending', 'approved', 'rejected', 'published', 'failed'];
+export const STATUS = ['pending', 'approved', 'publishing', 'rejected', 'published', 'failed'];
 
 export function openDb(path = process.env.ASSISTENTE_DB || new URL('../data/assistente.db', import.meta.url).pathname) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
@@ -31,10 +31,14 @@ export function openDb(path = process.env.ASSISTENTE_DB || new URL('../data/assi
 const now = () => new Date().toISOString();
 const rowDraft = (r) => r && { ...r, media: JSON.parse(r.media), meta: JSON.parse(r.meta) };
 
+function checkScheduledFor(v) {
+  if (v && (typeof v !== 'string' || Number.isNaN(Date.parse(v)))) throw new Error('scheduledFor inválido');
+}
+
 export function createDraft(db, routine, channel, d) {
   if (!d || typeof d.title !== 'string' || !d.title.trim()) throw new Error('rascunho precisa de title');
   if (typeof d.body !== 'string' || !d.body.trim()) throw new Error('rascunho precisa de body');
-  if (d.scheduledFor && Number.isNaN(Date.parse(d.scheduledFor))) throw new Error('scheduledFor inválido');
+  checkScheduledFor(d.scheduledFor);
   const id = randomUUID();
   db.prepare(`INSERT INTO drafts (id, routine, channel, title, body, media, meta, scheduled_for, created_at)
               VALUES (?,?,?,?,?,?,?,?,?)`).run(id, routine, channel, d.title.trim(), d.body,
@@ -58,6 +62,7 @@ export function editDraft(db, id, { title, body, meta, scheduledFor }) {
   const d = getDraft(db, id);
   if (!d) throw new Error('rascunho não existe');
   if (!['pending', 'failed'].includes(d.status)) throw new Error(`não dá pra editar rascunho ${d.status}`);
+  checkScheduledFor(scheduledFor);
   db.prepare('UPDATE drafts SET title=?, body=?, meta=?, scheduled_for=? WHERE id=?').run(
     title ?? d.title, body ?? d.body, JSON.stringify(meta ?? d.meta), scheduledFor === undefined ? d.scheduled_for : scheduledFor || null, id);
   return getDraft(db, id);
@@ -70,6 +75,11 @@ export function decide(db, id, action) {
   if (!TRANSITIONS[action]?.includes(d.status)) throw new Error(`não dá pra ${action} rascunho ${d.status}`);
   db.prepare('UPDATE drafts SET status=?, error=NULL, decided_at=? WHERE id=?').run(action === 'approve' ? 'approved' : 'rejected', now(), id);
   return getDraft(db, id);
+}
+
+// Reserva o rascunho para publicar: só uma chamada (timer, clique ou outro processo) ganha a transição approved → publishing.
+export function claimForPublish(db, id) {
+  return db.prepare("UPDATE drafts SET status='publishing', error=NULL WHERE id=? AND status='approved'").run(id).changes === 1;
 }
 
 export function markPublished(db, id, { url, externalId }) {
