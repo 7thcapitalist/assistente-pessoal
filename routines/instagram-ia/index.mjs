@@ -2,6 +2,11 @@ import { POSTS, SLOTS } from './posts.mjs'
 
 const USERNAME_KEY = 'INSTAGRAM_IA_USERNAME'
 const PROIBIDAS = ['studio.frontstep', 'yourstyle.snkrshop']
+// Nomes e detalhes que nunca podem ir ao ar (regra de conteúdo do João).
+export const VEDADOS = [/frontstep/i, /egg\s*champions/i, /roblox/i, /snkrshop/i, /yourstyle/i, /software house/i, /f[áa]brica de (sites|roblox)/i, /R\$\s*\d/]
+export function conteudoProibido(texto) {
+  return VEDADOS.find((r) => r.test(texto)) || null
+}
 const TZ_OFFSET_H = 3 // Brasília = UTC-3 (sem horário de verão)
 
 // Próximas 8 datas dos slots, em UTC, a partir de `from`.
@@ -27,7 +32,7 @@ export function montarRascunho(p, quando) {
     title: `[${p.formato}] ${p.title}`,
     body: legendaFinal(p),
     media: [],
-    meta: { tema: p.pilar, formato: p.formato, arte: p.arte, ...detalhe, hashtags: [], imageUrls: [], videoUrl: null },
+    meta: { tema: p.pilar, noticia: !!p.noticia, fonte: null, formato: p.formato, arte: p.arte, ...detalhe, hashtags: [], imageUrls: [], videoUrl: null },
     scheduledFor: quando.toISOString(),
   }
 }
@@ -71,6 +76,12 @@ export default {
   },
 
   async publish(draft, ctx) {
+    const m0 = draft.meta || {}
+    const texto = [draft.title, draft.body, ...(m0.slides || []), ...(m0.roteiro || [])].join('\n')
+    const v = conteudoProibido(texto)
+    if (v) throw new Error(`Conteúdo vedado (${v}): revele nada do negócio; edite o rascunho`)
+    if (/\[[^\]]+\]/.test(texto)) throw new Error('Rascunho ainda tem [campo] sem preencher; edite antes de publicar')
+    if (m0.noticia && !https(m0.fonte)) throw new Error('Post de notícia exige meta.fonte com URL https verificada (edite o rascunho)')
     const c = await contaTravada(ctx)
     const m = draft.meta || {}
     const ig = c.user_info.id

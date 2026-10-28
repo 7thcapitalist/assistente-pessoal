@@ -56,3 +56,21 @@ test('publish carrossel e reel usam a conta travada', async () => {
   assert.ok(calls.some(([t]) => t === 'INSTAGRAM_CREATE_CAROUSEL_CONTAINER'))
   assert.ok(calls.filter(([t]) => t.startsWith('INSTAGRAM_')).every(([, a]) => a.account === 'c1'))
 })
+
+test('nenhum rascunho gerado revela produto, empresa ou preço', async () => {
+  const { POSTS } = await import('../routines/instagram-ia/posts.mjs')
+  const { conteudoProibido } = await import('../routines/instagram-ia/index.mjs')
+  for (const p of POSTS) {
+    const t = [p.title, p.body, ...(p.slides || []), ...(p.roteiro || []), p.arte].join('\n')
+    assert.equal(conteudoProibido(t), null, p.title)
+  }
+})
+test('publish recusa conteúdo vedado, [campo] aberto e notícia sem fonte', async () => {
+  const ctx = mkCtx({ INSTAGRAM_IA_USERNAME: 'joao.empresasia' })
+  const base = { formato: 'carrossel', imageUrls: ['https://a/1.jpg'] }
+  await assert.rejects(r.publish({ title: 't', body: 'Minha fábrica de sites vende', meta: base }, ctx), /vedado/)
+  await assert.rejects(r.publish({ title: 't', body: 'Saiu [fato]', meta: base }, ctx), /sem preencher/)
+  await assert.rejects(r.publish({ title: 't', body: 'Saiu X', meta: { ...base, noticia: true } }, ctx), /fonte/)
+  const ok = await r.publish({ title: 't', body: 'Saiu X', meta: { ...base, noticia: true, fonte: 'https://exemplo.com/x' } }, ctx)
+  assert.equal(ok.externalId, 'X1')
+})
