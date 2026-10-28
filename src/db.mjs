@@ -68,7 +68,8 @@ export function createDraft(db, routine, channel, d) {
   checkMedia(d.media);
   const needs = normalizeNeeds(d.needs);
   // Com pedido ao João ainda sem resposta e sem mídia, o rascunho espera por ele antes de ir para a fila de aprovação.
-  const status = needs.some((n) => n.status === 'waiting') && !(d.media ?? []).length ? 'needs_joao' : 'pending';
+  // d.processing: o rascunho nasce para a rotina editar sozinha (ex.: Reel só de imagens), sem depender do João.
+  const status = d.processing ? 'processing' : needs.some((n) => n.status === 'waiting') && !(d.media ?? []).length ? 'needs_joao' : 'pending';
   const id = randomUUID();
   db.prepare(`INSERT INTO drafts (id, routine, channel, title, body, media, meta, needs, scheduled_for, status, created_at)
               VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(id, routine, channel, d.title.trim(), d.body,
@@ -168,5 +169,21 @@ export function finishProcessing(db, id, { media = [], body } = {}) {
   checkMedia(media);
   db.prepare("UPDATE drafts SET media=?, body=?, status='pending' WHERE id=? AND status='processing'")
     .run(JSON.stringify([...d.media, ...media]), body ?? d.body, id);
+  return getDraft(db, id);
+}
+
+// Edição falhou: continua em 'processing' com o erro e a contagem de tentativas (o agendador tenta de novo até o limite).
+export const MAX_EDIT_TRIES = 3;
+export function failProcessing(db, id, error) {
+  const d = getDraft(db, id);
+  if (!d || d.status !== 'processing') return;
+  const meta = { ...d.meta, edicao: { tentativas: (d.meta.edicao?.tentativas ?? 0) + 1 } };
+  db.prepare("UPDATE drafts SET meta=?, error=? WHERE id=? AND status='processing'").run(JSON.stringify(meta), String(error).slice(0, 2000), id);
+}
+// Refaz a edição do zero (botão "Tentar de novo" ou novo upload).
+export function retryProcessing(db, id) {
+  const d = getDraft(db, id);
+  if (!d || d.status !== 'processing') throw new Error('rascunho não está em edição');
+  db.prepare("UPDATE drafts SET meta=?, error=NULL WHERE id=?").run(JSON.stringify({ ...d.meta, edicao: { tentativas: 0 } }), id);
   return getDraft(db, id);
 }

@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { readFileSync, createReadStream, statSync, rmSync } from 'node:fs';
 import { resolve, sep, extname } from 'node:path';
 import * as store from './db.mjs';
-import { loadRoutines, runRoutine, publishApproved } from './runner.mjs';
+import { loadRoutines, runRoutine, publishApproved, processDrafts } from './runner.mjs';
 import { nextRun, parseCron } from './cron.mjs';
 import { receiveFile, MAX_UPLOAD, UploadError } from './upload.mjs';
 
@@ -58,6 +58,13 @@ export function createApp(db, { routinesDir, mediaDir = MEDIA, maxUpload = MAX_U
     };
   }
 
+  // Edição em segundo plano (ffmpeg leva minutos); o painel mostra "Editando" e o erro, se houver.
+  let busyEditing = Promise.resolve();
+  function kickProcessing() {
+    busyEditing = busyEditing.then(async () => { const { routines } = await loadRoutines(routinesDir); await processDrafts(db, routines, { mediaDir }); }).catch(() => {});
+    return busyEditing;
+  }
+
   async function upload(req, url, id) {
     const d = store.getDraft(db, id);
     if (!d) { req.resume(); throw new HttpError(404, 'rascunho não existe'); }
@@ -72,8 +79,12 @@ export function createApp(db, { routinesDir, mediaDir = MEDIA, maxUpload = MAX_U
     catch (e) { req.resume(); throw e instanceof UploadError ? new HttpError(e.code, e.message) : e; }
     const need = d.needs[needIndex];
     const kind = f.mime.startsWith('image/') ? 'cover' : f.mime.startsWith('audio/') ? 'audio' : need?.type === 'record_audio' ? 'audio' : 'video_raw';
-    try { return store.attachUpload(db, id, { needIndex, media: { kind, path: f.path, mime: f.mime, bytes: f.bytes } }); }
-    catch (e) { rmSync(f.path, { force: true }); throw new HttpError(409, e.message); }
+    try {
+      const r = store.attachUpload(db, id, { needIndex, media: { kind, path: f.path, mime: f.mime, bytes: f.bytes } });
+      store.retryProcessing(db, id);
+      kickProcessing();
+      return r;
+    } catch (e) { rmSync(f.path, { force: true }); throw new HttpError(409, e.message); }
   }
 
   async function api(req, url, body) {
@@ -89,7 +100,14 @@ export function createApp(db, { routinesDir, mediaDir = MEDIA, maxUpload = MAX_U
       const { routines } = await loadRoutines(routinesDir);
       const r = routines.get(x[1]);
       if (!r) throw new HttpError(404, 'rotina não existe');
-      return runRoutine(db, r);
+      const out = await runRoutine(db, r);
+      kickProcessing();
+      return out;
+    }
+    if ((x = m(/^\/api\/drafts\/([\w-]+)\/retry$/)) && req.method === 'POST') {
+      try { store.retryProcessing(db, x[1]); } catch (e) { throw new HttpError(409, e.message); }
+      kickProcessing();
+      return store.getDraft(db, x[1]);
     }
     if ((x = m(/^\/api\/drafts\/([\w-]+)\/(approve|reject)$/)) && req.method === 'POST') {
       try { store.decide(db, x[1], x[2]); } catch (e) { throw new HttpError(409, e.message); }
@@ -102,7 +120,7 @@ export function createApp(db, { routinesDir, mediaDir = MEDIA, maxUpload = MAX_U
     throw new HttpError(404, 'não encontrado');
   }
 
-  return async function handle(req, res) {
+  const handle = async function handle(req, res) {
     const url = new URL(req.url, 'http://x');
     const send = (code, data, type = 'application/json') => {
       res.writeHead(code, { 'content-type': type, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
@@ -152,6 +170,8 @@ export function createApp(db, { routinesDir, mediaDir = MEDIA, maxUpload = MAX_U
       send(Number.isInteger(e.code) ? e.code : 500, { error: e.message });
     }
   };
+  handle.idle = () => busyEditing; // testes: espera a edição em segundo plano
+  return handle;
 }
 
 export function startServer(db, { port = 4180, host = '127.0.0.1', routinesDir, ...opts } = {}) {

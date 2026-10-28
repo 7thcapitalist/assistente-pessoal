@@ -5,6 +5,8 @@ import * as store from './db.mjs';
 import { lastDue, parseCron } from './cron.mjs';
 import { env } from './env.mjs';
 import { makeComposio } from './composio.mjs';
+import { exposeFiles } from './publicurl.mjs';
+import { resolve } from 'node:path';
 
 export const ROUTINES_DIR = process.env.ASSISTENTE_ROUTINES || new URL('../routines/', import.meta.url).pathname;
 const CHANNELS = ['linkedin', 'instagram', 'email', 'tasks'];
@@ -35,7 +37,10 @@ export async function loadRoutines(dir = ROUTINES_DIR) {
   return { routines: out, errors };
 }
 
-export function makeCtx(db, routine, { dry = false, logs = [] } = {}) {
+export const MEDIA_DIR = () => resolve(process.env.ASSISTENTE_MEDIA || new URL('../data/media/', import.meta.url).pathname);
+export const MUSIC_DIR = () => resolve(process.env.ASSISTENTE_MUSICA || new URL('../data/musica/', import.meta.url).pathname);
+
+export function makeCtx(db, routine, { dry = false, logs = [], mediaDir = MEDIA_DIR(), exposeFilesFn = exposeFiles } = {}) {
   const drafts = [];
   const composio = makeComposio();
   const st = store.stateStore(db, routine.id);
@@ -55,6 +60,7 @@ export function makeCtx(db, routine, { dry = false, logs = [] } = {}) {
     now: new Date(),
     env,
     composio,
+    mediaDir, musicDir: MUSIC_DIR(), exposeFiles: exposeFilesFn,
     dry,
     _drafts: drafts,
   };
@@ -74,7 +80,7 @@ export async function runRoutine(db, routine, { dry = false } = {}) {
 }
 
 // Publica rascunhos aprovados (respeitando scheduledFor). Só roda o que o João aprovou no painel.
-export async function publishApproved(db, routines, at = new Date()) {
+export async function publishApproved(db, routines, at = new Date(), opts = {}) {
   const results = [];
   for (const d of store.listDrafts(db, { status: 'approved' }).reverse()) {
     if (d.scheduled_for) {
@@ -86,7 +92,7 @@ export async function publishApproved(db, routines, at = new Date()) {
     const r = routines.get(d.routine);
     if (!r?.publish) { store.markFailed(db, d.id, r ? 'a rotina não implementa publish()' : 'rotina não encontrada'); results.push({ id: d.id, ok: false }); continue; }
     try {
-      const ctx = makeCtx(db, r);
+      const ctx = makeCtx(db, r, opts);
       const out = (await r.publish(d, ctx)) ?? {};
       store.markPublished(db, d.id, out);
       results.push({ id: d.id, ok: true, url: out.url });
@@ -94,6 +100,27 @@ export async function publishApproved(db, routines, at = new Date()) {
       store.markFailed(db, d.id, e.message);
       results.push({ id: d.id, ok: false, error: e.message });
     }
+  }
+  return results;
+}
+
+// Edição automática: rascunhos em 'processing' cuja rotina sabe editar (r.process). Um por vez; falha vira erro visível no painel.
+const editing = new Set();
+export async function processDrafts(db, routines, opts = {}) {
+  const results = [];
+  for (const d of store.listDrafts(db, { status: 'processing' }).reverse()) {
+    const r = routines.get(d.routine);
+    if (!r?.process || editing.has(d.id) || (d.meta.edicao?.tentativas ?? 0) >= store.MAX_EDIT_TRIES) continue;
+    if (d.needs.some((n) => n.status === 'waiting')) continue;
+    editing.add(d.id);
+    try {
+      const out = await r.process(d, makeCtx(db, r, opts));
+      store.finishProcessing(db, d.id, out);
+      results.push({ id: d.id, ok: true });
+    } catch (e) {
+      store.failProcessing(db, d.id, e.message);
+      results.push({ id: d.id, ok: false, error: e.message });
+    } finally { editing.delete(d.id); }
   }
   return results;
 }
@@ -112,6 +139,7 @@ export async function tick(db, { at = new Date(), dir } = {}) {
     if (!row.last_run_at && at - due > 10 * 60e3) continue;
     ran.push({ id: r.id, ...(await runRoutine(db, r)) });
   }
+  const processed = await processDrafts(db, routines);
   const published = await publishApproved(db, routines, at);
-  return { ran, published, errors };
+  return { ran, processed, published, errors };
 }
