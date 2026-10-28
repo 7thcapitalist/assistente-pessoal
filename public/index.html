@@ -30,7 +30,7 @@
   input.sched { width:160px; font-family:ui-monospace, monospace; }
   .media video, .media audio { max-width:100%; border-radius:8px; } .media video { max-height:420px; background:#000; }
   .tag.needs_joao { color:var(--warn); border-color:var(--warn); } .tag.processing { color:var(--acc); border-color:var(--acc); }
-  #need .card { border-color:var(--warn); } #need h3 { margin:0 0 8px; } .script { white-space:pre-wrap; margin:8px 0; padding:10px; border-left:3px solid var(--warn); background:var(--bg); border-radius:4px; font-size:16px; }
+  #need .card { border-color:var(--warn); } #need h3 { margin:0 0 8px; } .script { white-space:pre-wrap; margin:8px 0; padding:12px; border-left:3px solid var(--warn); background:var(--bg); border-radius:4px; font-size:20px; line-height:1.6; }
   .acts label.b { display:inline-block; } .acts input[type=file] { display:none; } .bar { height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:8px; } .bar i { display:block; height:100%; background:var(--ok); width:0; }
   .b.rec { background:var(--bad); border-color:var(--bad); color:#fff; }
   @media (max-width: 600px) { main, #need { padding-left:12px; padding-right:12px; } .b { padding:10px 14px; } }
@@ -119,8 +119,8 @@ function needItem(d, idx) {
     return el('label', { className: 'b' + (capture ? ' go' : ''), textContent: label }, i);
   };
   const acts = el('div', { className: 'acts', style: 'flex-wrap:wrap' },
-    video ? pick('Gravar vídeo', 'video/*', 'user') : pick('Gravar áudio (app do celular)', 'audio/*', 'user'),
-    pick('Escolher arquivo', video ? 'video/*' : 'audio/*', null));
+    video ? pick('Gravar vídeo agora', 'video/*', 'user') : pick('Gravar áudio (app do celular)', 'audio/*', 'user'),
+    pick(video ? 'Subir vídeo bruto' : 'Subir áudio', video ? 'video/*' : 'audio/*', null));
   const rb = video ? null : recorder(go);
   if (rb) acts.append(rb);
   return el('div', { className: 'card' },
@@ -156,7 +156,14 @@ function recorder(go) {
 function renderNeed() {
   if (busy) return; // não derruba um envio em andamento
   const items = [...S.needsJoao, ...S.processing].flatMap((d) => d.needs.map((n, i) => (n.status === 'waiting' ? needItem(d, i) : null)).filter(Boolean));
-  const proc = S.processing.filter((d) => !d.needs.some((n) => n.status === 'waiting')).map((d) => el('div', { className: 'mut', textContent: `Editando: ${d.title}` }));
+  const proc = S.processing.filter((d) => !d.needs.some((n) => n.status === 'waiting')).map((d) => {
+    const tries = d.meta?.edicao?.tentativas ?? 0;
+    return el('div', { className: 'card', style: 'border-color:' + (d.error ? 'var(--bad)' : 'var(--acc)') },
+      el('strong', { textContent: `Editando: ${d.title}` }),
+      el('div', { className: 'mut', textContent: d.error ? `Falhou (${tries}x). ` : 'Cortando silêncio, legendando e pondo música; volta para a fila quando terminar.' }),
+      d.error ? el('div', { className: 'err', textContent: d.error }) : null,
+      d.error ? el('div', { className: 'acts' }, el('button', { className: 'b', textContent: 'Tentar de novo', onclick: act(() => api(`/drafts/${d.id}/retry`, 'POST')) }), el('button', { className: 'b no', textContent: 'Descartar', onclick: act(() => api(`/drafts/${d.id}/reject`, 'POST')) })) : null);
+  });
   $('#need').replaceChildren(...(items.length ? [el('h3', { textContent: `Precisa do João (${items.length})` }), ...items] : []), ...proc);
 }
 

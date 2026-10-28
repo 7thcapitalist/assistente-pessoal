@@ -88,3 +88,21 @@ Screenshots: `docs/precisa-do-joao.png` (desktop) e `docs/precisa-do-joao-celula
 
 - Painel só no IP da tailnet; sem login próprio (a tailnet é a barreira). Escritas exigem `x-assistente: 1`; `/media` só serve `data/media/`; upload e mídia só para tailnet/loopback.
 - Publicar só acontece para rascunho `approved` por clique no painel.
+
+## Reels do Instagram IA: upload, edição e publicação (ASS-4)
+
+Fluxo (detalhes em `docs/instagram/estrategia.md`): a rotina `instagram-ia` cria um rascunho por item de `data/instagram/calendario.json`.
+
+| Tipo | Painel | Edição no mini PC |
+|---|---|---|
+| A (gravar) | "Precisa do João": roteiro grande + **Subir vídeo bruto** / Gravar vídeo agora | transcreve, corta silêncio e hesitação, legenda queimada karaokê, texto na tela do roteiro, zoom alternado a cada corte, música baixa, capa do bruto |
+| B (imagens) | nasce "editando"; vai direto para a fila | cartões 1080x1920 animados + legenda + música + capa, sem o João |
+| C (voz) | narração + **Subir áudio** / gravar no navegador | transcreve, corta pausas, vira as cenas no tempo da voz, legenda, música, capa |
+
+Saída: mp4 H.264/AAC 1080x1920 30 fps + capa jpg em `data/media/<id>/edit/`, rascunho vai para a fila de aprovação (erro de edição aparece no painel com "Tentar de novo"; 3 tentativas automáticas).
+
+- Ferramentas locais, sem serviço pago: `ffmpeg` estático em `~/.local/opt/ffmpeg` (e symlink em `~/.local/bin`), `faster-whisper` (modelo `small`, CPU int8) no venv `~/.local/opt/whisper-venv` com modelos em `~/.local/opt/whisper-models`, via `scripts/transcribe.py`. Variáveis: `FFMPEG`, `FFPROBE`, `WHISPER_PYTHON`, `WHISPER_MODEL`. Reinstalar: baixar o ffmpeg static amd64; `python3 -m venv ~/.local/opt/whisper-venv && ~/.local/opt/whisper-venv/bin/pip install faster-whisper numpy`.
+- Música: `data/musica/` (ver `LEIA-ME.md`). Vem uma trilha sintetizada própria; o João troca por faixas livres depois de conferir a licença.
+- Publicação (só depois do Aprovar): trava de conta (`INSTAGRAM_IA_USERNAME` em `~/.config/assistente/env`, recusa @studio.frontstep e @yourstyle.snkrshop e qualquer conta diferente), recusa termo vedado, `[campo]` aberto e notícia sem fonte https. A Meta precisa baixar o mp4 por URL https: `src/publicurl.mjs` sobe um servidor local que serve só o mp4 e a capa em `/<token aleatório>/arquivo` e abre um túnel grátis `cloudflared` (trycloudflare, sem conta), derrubado assim que a publicação termina.
+- Exemplos gerados (voz **sintética** de teste, vídeo bruto de teste: o João real ainda não gravou): `docs/instagram/exemplos/reel-{A,B,C}.mp4` e capas. Telas: `docs/instagram/painel-*.png`.
+- Não testado: publicação real na Meta (falta a conta nova, o @ e a conexão no Composio, passos do João); o túnel foi testado de verdade (mp4 e capa respondem 200 em https).
