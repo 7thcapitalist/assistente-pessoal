@@ -99,8 +99,8 @@ test('filtro barra termos proibidos (sem diferenciar caixa/acento) e números co
 });
 
 test('todas as pautas atuais passam no filtro; pauta do mundo tem link', () => {
+  for (const p of PAUTAS) {
     const r = checarConteudo(`${p.title}\n${p.fonte}\n${montarTexto(p)}`);
-    const r = checarConteudo(`${p.title}\n${montarTexto(p)}`);
     assert.ok(r.ok, `${p.title}: ${r.achados}`);
     if (p.tema === 'mundo') assert.match(p.link, /^https:\/\//);
     if (p.tema === 'mundo') assert.ok(montarTexto(p).includes(p.link));
