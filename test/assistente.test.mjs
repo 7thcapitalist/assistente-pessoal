@@ -137,3 +137,21 @@ test('editar rascunho rejeita scheduledFor inválido (store e API)', async () =>
   assert.equal(store.getDraft(db, d.id).scheduled_for, null);
   srv.close();
 });
+
+test('editar rascunho rejeita title/body vazio ou não-string e preserva o anterior (store e API)', async () => {
+  const db = store.openDb(':memory:'), dir = dirWith(routineSrc());
+  const d = store.createDraft(db, 'r1', 'linkedin', { title: 'a', body: 'b' });
+  for (const bad of ['', '   ', null, 123, {}]) {
+    assert.throws(() => store.editDraft(db, d.id, { title: bad }), /title/);
+    assert.throws(() => store.editDraft(db, d.id, { body: bad }), /body/);
+  }
+  assert.throws(() => store.editDraft(db, d.id, { title: '', body: '' }));
+  assert.throws(() => store.editDraft(db, d.id, { title: 'novo', body: '' }));
+  const kept = store.getDraft(db, d.id);
+  assert.equal(kept.title, 'a'); assert.equal(kept.body, 'b');
+  const srv = createServer(createApp(db, { routinesDir: dir })); await new Promise((ok) => srv.listen(0, '127.0.0.1', ok));
+  const res = await fetch(`http://127.0.0.1:${srv.address().port}/api/drafts/${d.id}`, { method: 'PUT', headers: { 'x-assistente': '1', 'content-type': 'application/json' }, body: JSON.stringify({ title: '', body: '' }) });
+  assert.ok(res.status >= 400 && res.status < 500);
+  assert.deepEqual(store.getDraft(db, d.id), kept);
+  srv.close();
+});

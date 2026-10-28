@@ -62,9 +62,11 @@ export function editDraft(db, id, { title, body, meta, scheduledFor }) {
   const d = getDraft(db, id);
   if (!d) throw new Error('rascunho não existe');
   if (!['pending', 'failed'].includes(d.status)) throw new Error(`não dá pra editar rascunho ${d.status}`);
+  if (title !== undefined && (typeof title !== 'string' || !title.trim())) throw new Error('rascunho precisa de title');
+  if (body !== undefined && (typeof body !== 'string' || !body.trim())) throw new Error('rascunho precisa de body');
   checkScheduledFor(scheduledFor);
   db.prepare('UPDATE drafts SET title=?, body=?, meta=?, scheduled_for=? WHERE id=?').run(
-    title ?? d.title, body ?? d.body, JSON.stringify(meta ?? d.meta), scheduledFor === undefined ? d.scheduled_for : scheduledFor || null, id);
+    title === undefined ? d.title : title.trim(), body ?? d.body, JSON.stringify(meta ?? d.meta), scheduledFor === undefined ? d.scheduled_for : scheduledFor || null, id);
   return getDraft(db, id);
 }
 
