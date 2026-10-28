@@ -122,7 +122,12 @@ export default {
 
   async publish(draft, ctx) {
     const m0 = draft.meta || {}
-    const texto = [draft.title, draft.body, ...(m0.slides || []), ...(m0.roteiro || []), ...(m0.falas || [])].join('\n')
+    const prefixoFormato = `[${m0.formato}] `
+    const titulo = String(draft.title || '')
+    const tituloSemFormato = titulo.toLowerCase().startsWith(prefixoFormato.toLowerCase())
+      ? titulo.slice(prefixoFormato.length)
+      : titulo
+    const texto = [tituloSemFormato, draft.body, ...(m0.slides || []), ...(m0.roteiro || []), ...(m0.falas || [])].join('\n')
     const v = conteudoProibido(texto)
     if (v) throw new Error(`Conteúdo vedado (${v}): revele nada do negócio; edite o rascunho`)
     if (/\[[^\]]+\]/.test(texto)) throw new Error('Rascunho ainda tem [campo] sem preencher; edite antes de publicar')

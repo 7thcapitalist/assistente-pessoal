@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import r, { agenda } from '../routines/instagram-ia/index.mjs'
+import r, { agenda, montarRascunho } from '../routines/instagram-ia/index.mjs'
+import { POSTS } from '../routines/instagram-ia/posts.mjs'
 
 const mkCtx = (env = {}, calls = []) => {
   const drafts = [], st = {}
@@ -57,8 +58,21 @@ test('publish carrossel e reel usam a conta travada', async () => {
   assert.ok(calls.filter(([t]) => t.startsWith('INSTAGRAM_')).every(([, a]) => a.account === 'c1'))
 })
 
+test('rascunho real ignora prefixo de formato, chega à mídia e ainda recusa placeholder', async () => {
+  const ctx = mkCtx({ INSTAGRAM_IA_USERNAME: 'joao.empresasia' })
+  const rascunho = montarRascunho(POSTS[0], new Date('2026-10-30T22:00:00Z'))
+  assert.match(rascunho.title, /^\[carrossel\]/)
+  await assert.rejects(r.publish(rascunho, ctx), /imageUrls/)
+
+  rascunho.meta.imageUrls = ['https://a/1.jpg']
+  const publicado = await r.publish(rascunho, ctx)
+  assert.equal(publicado.externalId, 'X1')
+
+  const comPlaceholder = montarRascunho(POSTS[2], new Date('2026-10-31T13:00:00Z'))
+  await assert.rejects(r.publish(comPlaceholder, ctx), /sem preencher/)
+})
+
 test('nenhum rascunho gerado revela produto, empresa ou preço', async () => {
-  const { POSTS } = await import('../routines/instagram-ia/posts.mjs')
   const { conteudoProibido } = await import('../routines/instagram-ia/index.mjs')
   for (const p of POSTS) {
     const t = [p.title, p.body, ...(p.slides || []), ...(p.roteiro || []), p.arte].join('\n')
