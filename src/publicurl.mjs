@@ -31,7 +31,10 @@ export async function exposeFiles(files, { tunnel = true, cloudflared = process.
     map.set(`/${token}/${basename(f)}`, f);
   }
   const server = createServer((req, res) => {
-    const f = map.get(decodeURIComponent((req.url || '').split('?')[0]));
+    let path;
+    try { path = decodeURIComponent((req.url || '').split('?')[0]); }
+    catch { res.writeHead(404); return res.end(); }
+    const f = map.get(path);
     if (!f || !['GET', 'HEAD'].includes(req.method)) { res.writeHead(404); return res.end(); }
     const size = statSync(f).size, m = String(req.headers.range || '').match(/^bytes=(\d*)-(\d*)$/);
     let start = 0, end = size - 1, code = 200;

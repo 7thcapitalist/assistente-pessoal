@@ -58,6 +58,7 @@ test('link público: serve só os arquivos dados, no token secreto, com Range', 
   const p = await exposeFiles([f], { tunnel: false });
   try {
     const [u] = p.urls; assert.match(u, /\/[0-9a-f]{32}\/reel\.mp4$/);
+    assert.equal((await fetch(new URL('/%', u))).status, 404);
     assert.equal(await (await fetch(u)).text(), '0123456789');
     const r = await fetch(u, { headers: { range: 'bytes=2-4' } }); assert.equal(r.status, 206); assert.equal(await r.text(), '234');
     assert.equal((await fetch(u.replace(/[0-9a-f]{32}/, 'x'.repeat(32)))).status, 404);
