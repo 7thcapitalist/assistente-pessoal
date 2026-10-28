@@ -1,0 +1,12 @@
+{
+  "id": "li-2026-11-04-qua",
+  "channel": "linkedin",
+  "kind": "noticia",
+  "scheduled_for": "2026-11-04T08:30:00-03:00",
+  "text": "[EXEMPLO DE FORMATO. A rotina real escolhe uma notícia da semana, abre a fonte e só então escreve.]\n\nO que aconteceu: <1 frase, só o que a fonte diz>.\n\nMinha leitura: <opinião do João em 2 ou 3 frases, ligada a operar agentes na prática>.\n\nFonte: <url>",
+  "source": { "title": "<título da matéria verificada>", "url": "https://exemplo.invalid/substituir-pela-fonte-real" },
+  "status": "draft",
+  "created_at": "2026-10-28T12:00:00-03:00",
+  "approved_at": null,
+  "published": { "at": null, "post_url": null, "simulated": false }
+}
