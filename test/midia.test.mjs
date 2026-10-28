@@ -135,6 +135,15 @@ test('path traversal: nome do cliente nunca vira caminho; /media só serve dentr
   srv.close();
 });
 
+test('upload: nome com % no filename comum não quebra (sem URI malformed)', async () => {
+  const { db, srv, base } = await setup(), d = reel(db);
+  const r = await up(base, d.id, form(Buffer.from('abc'), { name: '100%.mp4' }));
+  assert.equal(r.status, 200);
+  const { media: [m] } = await r.json();
+  assert.ok(m.path.includes(String(d.id)) && m.path.endsWith('.mp4'));
+  srv.close();
+});
+
 test('mídia: range requests (206/416/HEAD) como o iOS pede', async () => {
   const { db, srv, base } = await setup(), d = reel(db);
   const data = Buffer.from(Array.from({ length: 1000 }, (_, i) => i % 251));
@@ -146,7 +155,8 @@ test('mídia: range requests (206/416/HEAD) como o iOS pede', async () => {
   assert.equal(r.status, 206); assert.ok(Buffer.from(await r.arrayBuffer()).equals(data.subarray(990)));
   r = await fetch(url, { headers: { range: 'bytes=-10' } });
   assert.ok(Buffer.from(await r.arrayBuffer()).equals(data.subarray(990)));
-  assert.equal((await fetch(url, { headers: { range: 'bytes=5000-' } })).status, 416);
+  r = await fetch(url, { headers: { range: 'bytes=5000-' } });
+  assert.equal(r.status, 416); assert.equal(r.headers.get('content-range'), 'bytes */1000');
   assert.equal((await fetch(url, { headers: { range: 'lixo' } })).status, 416);
   r = await fetch(url, { method: 'HEAD' });
   assert.equal(r.status, 200); assert.equal(r.headers.get('content-length'), '1000');

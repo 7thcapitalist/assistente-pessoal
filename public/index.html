@@ -67,7 +67,9 @@ function render() {
 const mediaUrl = (m) => '/media?p=' + encodeURIComponent(m.path);
 // vídeo/áudio tocam no card (Range é servido pelo painel); video_final aparece primeiro, com a capa como pôster.
 function mediaEls(d) {
-  const ms = (d.media || []).filter((m) => m.path), cover = ms.find((m) => m.kind === 'cover');
+  const all = (d.media || []).filter((m) => m.path), hasFinal = all.some((m) => m.kind === 'video_final');
+  // com video_final, o bruto não aparece: só um player, para não ficar ambíguo o que se aprova
+  const ms = hasFinal ? all.filter((m) => m.kind !== 'video_raw') : all, cover = ms.find((m) => m.kind === 'cover');
   const rank = (m) => (m.kind === 'video_final' ? 0 : m.kind === 'cover' ? 2 : 1);
   return [...ms].sort((a, b) => rank(a) - rank(b)).map((m) => {
     const t = (m.mime || '').split('/')[0] || (m.kind === 'audio' ? 'audio' : m.kind?.startsWith('video') ? 'video' : 'image');

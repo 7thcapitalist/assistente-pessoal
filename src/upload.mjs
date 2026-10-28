@@ -63,7 +63,9 @@ export async function receiveFile(req, dir, { maxBytes = MAX_UPLOAD } = {}) {
         if (!/name="file"/.test(cd) || !fn) throw new UploadError(400, 'campo "file" ausente');
         const mime = (h['content-type'] || '').toLowerCase().split(';')[0].trim();
         if (!mimeOk(mime)) throw new UploadError(415, `tipo não aceito: ${mime || 'sem content-type'}`);
-        const name = storedName(decodeURIComponent(fn[1]), mime);
+        let raw = fn[1];
+        if (/filename\*=/i.test(cd)) { try { raw = decodeURIComponent(raw); } catch { /* mantém o valor cru */ } }
+        const name = storedName(raw, mime);
         mkdirSync(dir, { recursive: true });
         outPath = join(dir, name);
         out = createWriteStream(outPath, { flags: 'wx' });

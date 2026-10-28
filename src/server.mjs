@@ -132,7 +132,11 @@ export function createApp(db, { routinesDir, mediaDir = MEDIA, maxUpload = MAX_U
         try { st = p.startsWith(mediaDir + sep) ? statSync(p) : null; } catch { st = null; }
         if (!st?.isFile()) throw new HttpError(404, 'não encontrado');
         const type = MIME[extname(p).toLowerCase()] || 'application/octet-stream';
-        const r = parseRange(req.headers.range, st.size);
+        let r;
+        try { r = parseRange(req.headers.range, st.size); } catch (e) {
+          if (e.code !== 416) throw e;
+          res.writeHead(416, { 'content-range': `bytes */${st.size}` }); return res.end();
+        }
         const head = { 'content-type': type, 'accept-ranges': 'bytes', 'x-content-type-options': 'nosniff', 'content-length': r ? r.end - r.start + 1 : st.size };
         if (r) head['content-range'] = `bytes ${r.start}-${r.end}/${st.size}`;
         res.writeHead(r ? 206 : 200, head);
