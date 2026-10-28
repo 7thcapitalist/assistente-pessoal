@@ -1,4 +1,4 @@
-// Calendário de 2 semanas (8 posts). Sem hashtags.
+// Calendário de 4 semanas (16 posts) em data/instagram/calendario.json. Sem hashtags.
 // Regra de conteúdo do João: nada que revele produto, empresa, cliente, preço, nicho,
 // ferramenta do nosso processo ou número que permita copiar o negócio. Só lição abstrata.
 // Posts 'noticia' são sobre o mundo da IA: o fato e a fonte (URL) são preenchidos e

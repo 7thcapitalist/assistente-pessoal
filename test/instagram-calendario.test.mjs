@@ -5,15 +5,21 @@ import { readFileSync } from 'node:fs'
 const cal = JSON.parse(readFileSync(new URL('../data/instagram/calendario.json', import.meta.url), 'utf8'))
 const VEDADOS = [/frontstep/i, /egg\s*champions/i, /roblox/i, /snkrshop/i, /yourstyle/i, /software house/i, /R\$\s*\d/]
 const texto = (r) => JSON.stringify(r)
+const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
 const palavras = (s) => s.trim().split(/\s+/).length
 
-test('2 semanas: 8 rascunhos, 3 Reels + 1 carrossel por semana', () => {
-  assert.equal(cal.rascunhos.length, 8)
-  for (const sem of [cal.rascunhos.slice(0, 4), cal.rascunhos.slice(4)]) {
+test('4 semanas (3/11 a 29/11): 16 rascunhos, 3 Reels (1 A, 1 B, 1 C) + 1 carrossel por semana', () => {
+  assert.equal(cal.rascunhos.length, 16)
+  assert.equal(new Set(cal.rascunhos.map((r) => r.id)).size, 16, 'ids repetidos')
+  for (let i = 0; i < 16; i += 4) {
+    const sem = cal.rascunhos.slice(i, i + 4)
     assert.equal(sem.filter((r) => r.formato === 'reel').length, 3)
     assert.equal(sem.filter((r) => r.formato === 'carrossel').length, 1)
-    assert.equal(sem.filter((r) => r.tipo === 'A_gravar').length, 1)
+    for (const t of ['A_gravar', 'B_imagens', 'C_voz']) assert.equal(sem.filter((r) => r.tipo === t).length, 1, `semana ${i / 4 + 1}: ${t}`)
   }
+  const datas = cal.rascunhos.map((r) => r.data)
+  assert.deepEqual(datas, [...datas].sort())
+  assert.ok(datas.at(-1) >= '2026-11-29', 'calendário tem de ir até 29/11')
 })
 
 test('sem termos vedados, sem hashtags', () => {
@@ -48,11 +54,18 @@ test('Reel C: narração cabe em 25-45 s (~2,5 palavras/s) e cenas batem', () =>
   }
 })
 
-test('notícia só vai com fonte: rascunho de notícia nasce sem fonte e com [campo]', () => {
-  for (const r of cal.rascunhos.filter((r) => r.noticia)) {
-    assert.equal(r.fonte, null)
-    assert.match(texto(r), /\[[^\]]+\]/)
+test('notícia só vai com fonte https, citada na legenda, e sem [campo] aberto', () => {
+  const noticias = cal.rascunhos.filter((r) => r.noticia)
+  assert.ok(noticias.length >= 1)
+  for (const r of noticias) {
+    assert.match(r.fonte, /^https:\/\/\S+$/)
+    assert.ok(r.legenda.includes(r.fonte), `${r.id}: legenda sem a fonte`)
+    assert.doesNotMatch(strings(r).join('\n'), /\[[^\]]+\]/)
   }
+})
+
+test('nenhum [campo] aberto em nenhum rascunho', () => {
+  for (const r of cal.rascunhos) assert.doesNotMatch(strings(r).join('\n'), /\[[^\]]+\]/, r.id)
 })
 
 test('datas nos horários combinados (Brasília)', () => {

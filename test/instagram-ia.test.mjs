@@ -22,13 +22,13 @@ const withList = (ctx, pend = []) => { ctx.drafts = Object.assign(ctx.drafts, {}
 test('gera um rascunho por item do calendário, com horário de Brasília e sem hashtags', async () => {
   const ctx = mkCtx(); const arr = withList(ctx)
   await r.run(ctx)
-  assert.equal(arr.length, 8)
+  assert.equal(arr.length, 16)
   for (const d of arr) {
     assert.ok(!/#\w/.test(d.body)); assert.deepEqual(d.meta.hashtags, [])
     const h = new Date(d.scheduledFor).getUTCHours() - 3
     assert.ok([12, 19, 10, 20].includes(h), `hora ${h}`)
   }
-  await r.run(ctx); assert.equal(arr.length, 8, 'não duplica na segunda execução')
+  await r.run(ctx); assert.equal(arr.length, 16, 'não duplica na segunda execução')
 })
 test('A pede vídeo bruto com roteiro; C pede áudio com a narração; B nasce em edição', () => {
   const por = (t) => lerCalendario().find((p) => p.tipo === t)
