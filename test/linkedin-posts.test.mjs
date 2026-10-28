@@ -4,6 +4,7 @@ import * as store from '../src/db.mjs';
 import { loadRoutines, runRoutine } from '../src/runner.mjs';
 import routine, { montarTexto } from '../routines/linkedin-posts/index.mjs';
 import { PAUTAS } from '../routines/linkedin-posts/pautas.mjs';
+import { checarConteudo } from '../routines/linkedin-posts/filtro.mjs';
 
 const EMOJI = /\p{Extended_Pictographic}/gu;
 
@@ -87,4 +88,39 @@ test('publish recusa mídia e resposta sem confirmação', async () => {
     : a.tools[0].tool_slug === 'LINKEDIN_GET_MY_INFO' ? { data: { results: [{ response: { data: { id: 'i' } } }] } }
     : { data: { results: [{ response: { successful: false, error: 'x' } }] } });
   await assert.rejects(routine.publish(draft, ctx), /não confirmou/);
+});
+
+test('filtro barra termos proibidos (sem diferenciar caixa/acento) e números copiáveis', () => {
+  for (const t of ['Montei a FRONTSTEP', 'Meu jogo no Roblox', 'Egg  Champions'.replace('  ', ' '), 'cobro o preço X', 'Atendo clientes', 'Nicho de dentistas',
+    '882 testes passam', 'rodo 7 agentes', 'fatura R$ 500', 'uso o Paperclip', 'campanha no WhatsApp']) {
+    assert.equal(checarConteudo(t).ok, false, t);
+  }
+  assert.equal(checarConteudo('Falha silenciosa é pior que falha barulhenta').ok, true);
+});
+
+test('todas as pautas atuais passam no filtro; pauta do mundo tem link', () => {
+  for (const p of PAUTAS) {
+    const r = checarConteudo(`${p.title}\n${montarTexto(p)}`);
+    assert.ok(r.ok, `${p.title}: ${r.achados}`);
+    if (p.tema === 'mundo') assert.match(p.link, /^https:\/\//);
+    if (p.tema === 'mundo') assert.ok(montarTexto(p).includes(p.link));
+  }
+  assert.ok(PAUTAS.some((p) => p.tema === 'mundo'));
+});
+
+test('rascunho com termo proibido é barrado antes da fila', async () => {
+  const sujo = { tema: 'x', title: 'Sujo', fonte: 'x', body: 'Minha fábrica Frontstep roda sozinha', hashtags: [] };
+  PAUTAS.unshift(sujo);
+  try {
+    const db = store.openDb(':memory:');
+    const res = await runRoutine(db, routine);
+    assert.equal(res.ok, false);
+    assert.equal(store.listDrafts(db, {}).length, 0);
+  } finally { PAUTAS.shift(); }
+});
+
+test('publish barra texto editado com termo proibido, sem chamar o Composio', async () => {
+  const ctx = fakeCtx(() => ({}));
+  await assert.rejects(routine.publish({ id: 'd', title: 't', body: 'Vendo por R$ 99 no Roblox', media: [] }, ctx), /BLOQUEADO/);
+  assert.equal(ctx.chamadas.length, 0);
 });

@@ -1,6 +1,7 @@
 // Rotina LinkedIn: 1 rascunho por execução (seg/qua/sex 08:00). run() nunca publica;
 // publish() só roda depois do Aprovar no painel e posta na conta pessoal via Composio.
 import { PAUTAS } from './pautas.mjs';
+import { exigirLimpo } from './filtro.mjs';
 
 const MAX_PENDENTES = 3;
 const MAX_CHARS = 3000; // limite do LinkedIn para o texto do post
@@ -21,7 +22,7 @@ export default {
   id: 'linkedin-posts',
   name: 'LinkedIn: 3 posts/semana',
   channel: 'linkedin',
-  description: 'Gera um rascunho por dia (seg/qua/sex) com fatos reais da holding; publica na conta pessoal só após Aprovar.',
+  description: 'Gera um rascunho por dia (seg/qua/sex) sobre lições abstratas de operar agentes e o mundo da IA, sem revelar produto/empresa/número; publica na conta pessoal só após Aprovar.',
   defaultSchedule: '0 8 * * 1,3,5',
 
   async run(ctx) {
@@ -36,6 +37,7 @@ export default {
     if (reciclado) ctx.log('banco de pautas esgotado: reciclando; adicione pautas novas em pautas.mjs');
     const body = montarTexto(pauta);
     if (body.length > MAX_CHARS) throw new Error(`pauta "${pauta.title}" passa de ${MAX_CHARS} caracteres`);
+    exigirLimpo(`${pauta.title}\n${body}`, `pauta "${pauta.title}"`);
     ctx.state.set('n', n + 1);
     ctx.createDraft({
       title: pauta.title,
@@ -46,6 +48,7 @@ export default {
   },
 
   async publish(draft, ctx) {
+    exigirLimpo(`${draft.title ?? ''}\n${draft.body}`, 'antes de publicar'); // cobre edição no painel
     if (draft.media?.length) throw new Error('imagem em post do LinkedIn ainda não é suportada; remova a mídia ou poste à mão');
     const lista = await ctx.composio.call('COMPOSIO_MANAGE_CONNECTIONS', { toolkits: [{ name: 'linkedin', action: 'list' }] });
     const conta = (lista?.data?.results?.linkedin?.accounts ?? []).find(ativa);

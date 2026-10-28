@@ -1,97 +1,87 @@
-// Banco de pautas: cada texto só usa fatos tirados de holding-hq (campo `fonte`). Nunca invente número aqui.
-// Para novas pautas, leia reports/ e studios/*/STATE.md e cite o arquivo em `fonte`.
+// Banco de pautas. Regra do João: só o abstrato. Nada de produto, empresa, cliente, preço, nicho,
+// ferramenta do processo nem número copiável (o filtro.mjs barra isso e o teste cobre).
+// `interno`: lição abstrata tirada de holding-hq (reports/, STATE.md), sem o detalhe.
+// `mundo`: assunto do mundo da IA; exige `link` verificável e a opinião do João. Nunca invente fato.
 export const PAUTAS = [
   {
-    tema: 'holding',
-    title: 'O gargalo não era a IA, era a máquina',
-    fonte: 'studios/software/STATE.md (diagnóstico da fábrica, 2026-10-26)',
-    body: `O gargalo da minha holding de agentes não era a IA. Era a máquina.
+    tema: 'interno',
+    title: 'O gargalo não era a IA',
+    fonte: 'lição abstrata de studios/software/STATE.md (diagnóstico da fábrica)',
+    body: `O gargalo do meu negócio operado por agentes de IA não era a IA. Era a infraestrutura.
 
-Rodei 7 agentes ao mesmo tempo num mini PC de 4 núcleos, todos fazendo teste e build. A API parou, o vigia estourou o tempo e o servidor caiu.
+Coloquei agentes demais trabalhando ao mesmo tempo na mesma máquina. Tudo ficou lento e coisas começaram a cair.
 
-O que mudou: agentes com prioridade baixa, teto de memória e no máximo 4 em paralelo.
+O que resolveu: limitar o paralelismo e dar prioridade ao que importa.
 
-Antes de contratar mais um agente, meça a carga.`,
+Antes de adicionar mais um agente, meça a carga.`,
     hashtags: ['#IA', '#Agentes'],
   },
   {
-    tema: 'frontstep',
-    title: 'Frontstep: do lead ao site no ar',
-    fonte: 'studios/website/STATE.md (empresa e pipeline)',
-    body: `Montei a Frontstep, uma fábrica de sites para pequenos negócios.
-
-O fluxo do lead ao site publicado já rodou de ponta a ponta desde 21/09, e o primeiro contato real com um cliente foi em 30/09. A empresa (MEI) está ativa desde 15/10.
-
-Falta muita coisa, mas agora o processo é um pipeline, não um monte de abas abertas.
-
-studiofrontstep.com`,
-    hashtags: ['#Frontstep'],
-  },
-  {
-    tema: 'roblox',
-    title: 'Teste verde não é jogo bom',
-    fonte: 'studios/roblox/STATE.md (TESTE v120 e revisão visual)',
-    body: `Meu jogo de Roblox é feito por agentes. 882 testes de Luau passam.
-
-Mesmo assim, a revisão visual foi reprovada: a interface tinha cara de IA.
-
-Teste verde diz que o código funciona. Não diz que alguém quer jogar. Por isso a revisão visual segue como um portão separado, com olho humano.`,
-    hashtags: ['#Roblox', '#IA'],
-  },
-  {
-    tema: 'aprendizado',
+    tema: 'interno',
     title: 'Agente rodando não é agente trabalhando',
-    fonte: 'reports/2026-10-27.md (ciclo 11:00)',
-    body: `Esta semana descobri que alguns dos meus agentes "rodavam" em 1 segundo, com 0 tokens. Eram só um script, sem IA. Nada andava e o painel dizia que estava tudo certo.
+    fonte: 'lição abstrata de reports/2026-10-27.md',
+    body: `Descobri que alguns dos meus agentes "rodavam" sem fazer trabalho nenhum. O painel dizia que estava tudo certo, mas nada andava.
 
-Lição: "rodando" não é "trabalhando". Hoje toda tarefa só fecha com evidência: teste, PR ou link.`,
+Lição: "rodando" não é "trabalhando". Hoje toda tarefa só fecha com evidência: teste, link ou entrega verificável.`,
     hashtags: ['#IA', '#Agentes'],
   },
   {
-    tema: 'holding',
-    title: 'Agente não acordava ao receber tarefa',
-    fonte: 'studios/software/STATE.md (diagnóstico da fábrica, itens 2 e 3)',
-    body: `Dois bugs bobos que travaram minha fábrica de agentes:
+    tema: 'interno',
+    title: 'Falha silenciosa é a pior falha',
+    fonte: 'lição abstrata de studios/software/STATE.md (diagnóstico, itens 2 e 3)',
+    body: `O pior erro que tive operando agentes não foi o que gritou. Foi o que ficou quieto.
 
-1. Passar a tarefa para um agente não o acordava. Precisei chamar o wakeup apontando para a tarefa.
-2. Uma aprovação ficou gravada com o autor errado: o script falhava com o identificador e caía em silêncio para outro usuário.
+Um fluxo falhava e caía em silêncio para um caminho alternativo. Tudo parecia funcionar, mas o resultado saía errado.
 
-O segundo é o pior. Erro com fallback silencioso é pior que erro que grita.`,
+Prefiro um erro barulhento a um fallback silencioso. Quem opera agentes precisa de falhas que apareçam.`,
     hashtags: ['#IA'],
   },
   {
-    tema: 'frontstep',
-    title: 'Volume só sobe com qualidade',
-    fonte: 'studios/website/STATE.md (WhatsApp oficial)',
-    body: `Na Frontstep conectei um número oficial de WhatsApp e enviei templates de mensagem por nicho para aprovação.
+    tema: 'interno',
+    title: 'Teste verde não é produto bom',
+    fonte: 'lição abstrata de studios/roblox/STATE.md (revisão visual reprovada)',
+    body: `Os testes automáticos passavam, mas a revisão visual reprovou o resultado: tinha cara de coisa feita por IA.
 
-A regra que escrevi antes de disparar: começo com poucos leads e só aumento o volume olhando a avaliação de qualidade do número.
+Teste verde diz que funciona. Não diz que alguém quer usar.
 
-É mais lento, mas número queimado custa mais caro.`,
-    hashtags: ['#WhatsApp'],
+Por isso mantenho uma revisão de qualidade como portão separado, com olho humano.`,
+    hashtags: ['#IA', '#Qualidade'],
   },
   {
-    tema: 'roblox',
-    title: 'Tudo que der pela API, o agente faz',
-    fonte: 'studios/roblox/STATE.md (regra do João e TESTE v120)',
-    body: `Uma regra que adotei no jogo de Roblox feito por agentes: tudo que puder ser feito pela API, o agente faz pela API. O Studio aberto só entra quando não há outro jeito.
-
-O build de teste atual tem 170 scripts e é publicado sem eu clicar em nada.
-
-Menos clique manual, menos coisa que só eu sei fazer.`,
-    hashtags: ['#Roblox'],
-  },
-  {
-    tema: 'aprendizado',
+    tema: 'interno',
     title: 'O que aprendi gerindo agentes',
-    fonte: 'studios/software/STATE.md + reports/2026-10-27.md',
-    body: `O que aprendi esta semana gerindo uma holding de agentes de IA:
+    fonte: 'lição abstrata de studios/software/STATE.md + reports/2026-10-27.md',
+    body: `Três lições de operar um negócio com agentes de IA:
 
-- Meça a carga da máquina antes de aumentar o time.
+- Meça a carga antes de aumentar o time.
 - "Rodando" não é "trabalhando": exija evidência.
 - Falha silenciosa é pior que falha barulhenta.
 
-Nenhuma dessas lições é sobre IA. Todas são de gestão.`,
+Nenhuma é sobre IA. Todas são de gestão.`,
     hashtags: ['#IA', '#Gestão'],
+  },
+  {
+    tema: 'mundo',
+    title: 'Comece simples com agentes',
+    link: 'https://www.anthropic.com/engineering/building-effective-agents',
+    fonte: 'Anthropic, "Building effective AI agents" (link no post)',
+    body: `A Anthropic publicou um guia sobre como construir agentes de IA. A ideia central: comece pelo padrão mais simples e só adicione complexidade quando ela provar valor.
+
+Concordo, e aprendi na prática operando agentes. Cada camada nova é mais um lugar para o erro se esconder.
+
+Leia: https://www.anthropic.com/engineering/building-effective-agents`,
+    hashtags: ['#IA', '#Agentes'],
+  },
+  {
+    tema: 'mundo',
+    title: 'Padrão aberto para conectar IA a ferramentas',
+    link: 'https://www.anthropic.com/news/model-context-protocol',
+    fonte: 'Anthropic, anúncio do Model Context Protocol (link no post)',
+    body: `O Model Context Protocol é um padrão aberto para conectar assistentes de IA a dados e ferramentas, anunciado pela Anthropic.
+
+Minha opinião: padrão aberto importa mais que o modelo da vez. Quem opera agentes sofre com integração sob medida, e um protocolo comum reduz esse custo.
+
+Detalhes: https://www.anthropic.com/news/model-context-protocol`,
+    hashtags: ['#IA', '#MCP'],
   },
 ];
