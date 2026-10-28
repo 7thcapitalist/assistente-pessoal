@@ -1,5 +1,20 @@
 # Assistente pessoal do João
 
+## Onde o João usa: só no Paperclip (desde 28/10/2026)
+O João não abre painel próprio. Tudo chega como tarefa na org **Assistente Pessoal** do Paperclip
+(`src/paperclip.mjs`, roda dentro do `tick` a cada 5 min):
+
+| No Paperclip | O que acontece aqui |
+|---|---|
+| Tarefa "LinkedIn/Instagram: aprovar …" → **Done** | rascunho aprovado; publica no horário e comenta o link |
+| **Cancel** | rascunho recusado |
+| Comentário começando com `Texto:` | troca o texto do post |
+| Tarefa "Instagram: gravar …" → **anexar** vídeo ou áudio | baixa, edita (ffmpeg + legenda) e anexa o vídeo pronto para aprovar |
+| Tarefas "Conectar …" | link do Composio; comente `link novo` se expirar; no Instagram, comente o `@` da conta nova |
+
+O servidor web (`bin/serve.mjs`) continua no código para testes, mas o serviço `assistente-painel` fica desligado.
+`ASSISTENTE_PAPERCLIP=0` desliga a ponte (ex.: testes manuais do tick).
+
 Painel + agendador de **rotinas** que preparam rascunhos (posts, depois email e tarefas). **Nada é publicado, enviado ou respondido sem o João clicar em Aprovar no painel.**
 
 Stack: Node 24 (sem dependências, `node:sqlite` embutido), SQLite, HTML/JS puro. Roda no mini PC como serviço systemd de usuário; o painel escuta só no IP da tailnet.

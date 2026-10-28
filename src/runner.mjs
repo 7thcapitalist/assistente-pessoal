@@ -7,6 +7,7 @@ import { env } from './env.mjs';
 import { makeComposio } from './composio.mjs';
 import { exposeFiles } from './publicurl.mjs';
 import { resolve } from 'node:path';
+import { syncPaperclip } from './paperclip.mjs';
 
 export const ROUTINES_DIR = process.env.ASSISTENTE_ROUTINES || new URL('../routines/', import.meta.url).pathname;
 const CHANNELS = ['linkedin', 'instagram', 'email', 'tasks'];
@@ -126,8 +127,11 @@ export async function processDrafts(db, routines, opts = {}) {
 }
 
 // Um ciclo do agendador (chamado pelo systemd timer): sincroniza rotinas, roda as vencidas, publica as aprovadas.
-export async function tick(db, { at = new Date(), dir } = {}) {
+export async function tick(db, { at = new Date(), dir, paperclip = false } = {}) {
   const { routines, errors } = await loadRoutines(dir);
+  // O João usa só o Paperclip: primeiro traz de lá aprovações, textos novos e anexos; no fim leva o resultado do ciclo.
+  const ponte = [];
+  if (paperclip) ponte.push(await syncPaperclip(db, { mediaDir: MEDIA_DIR() }));
   const ran = [];
   for (const r of routines.values()) {
     const row = store.upsertRoutine(db, r.id, { schedule: r.defaultSchedule });
@@ -141,5 +145,6 @@ export async function tick(db, { at = new Date(), dir } = {}) {
   }
   const processed = await processDrafts(db, routines);
   const published = await publishApproved(db, routines, at);
-  return { ran, processed, published, errors };
+  if (paperclip) ponte.push(await syncPaperclip(db, { mediaDir: MEDIA_DIR(), composio: makeComposio() }));
+  return { ran, processed, published, errors, ponte };
 }
