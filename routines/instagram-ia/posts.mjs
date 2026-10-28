@@ -1,0 +1,41 @@
+// Calendário de 2 semanas (8 posts). Sem hashtags. Sem números inventados:
+// onde há "[número]" o João/rotina preenche com dado do painel antes de aprovar.
+export const SLOTS = [
+  { dow: 2, hora: 12, formato: 'carrossel' },
+  { dow: 4, hora: 19, formato: 'reel' },
+  { dow: 6, hora: 10, formato: 'bastidores' },
+  { dow: 0, hora: 20, formato: 'carrossel' },
+]
+
+export const POSTS = [
+  { pilar: 'bastidores', formato: 'carrossel', title: 'Eu opero empresas com agentes de IA',
+    body: 'Eu não uso IA só para escrever texto. Eu montei empresas em que agentes fazem o trabalho.\n\nUma software house, uma fábrica de sites e um jogo. Eu aprovo, eles executam.\n\nNesta conta eu mostro tudo: tela real, custo e o que quebrou.\n\nSegue para acompanhar. Salva este post para lembrar do começo.',
+    slides: ['Eu opero empresas com agentes de IA', 'Não é prompt bonito: é operação rodando', 'Software house, fábrica de sites e um jogo', 'Eu aprovo. Os agentes executam', 'Aqui você vê a tela real, o custo e os erros', 'Segue para acompanhar'],
+    arte: 'Fundo escuro, texto grande branco, 1 ideia por slide, print do painel de agentes no slide 3 (dados sensíveis cobertos).' },
+  { pilar: 'tutorial', formato: 'reel', title: 'Como um agente revisa o código do outro',
+    body: 'Um agente escreve o código. Outro, que não viu nada do processo, revisa.\n\nFunciona porque o revisor não tem o viés de quem escreveu.\n\nVeja como isso aparece na tela. Comenta se quer o passo a passo para montar o seu.',
+    roteiro: ['0-3s: gancho em texto: "Meu agente não revisa o próprio código"', '3-15s: tela do painel com a tarefa em revisão', '15-30s: comentário do revisor pedindo ajuste e o ajuste feito', '30-40s: fecha com a regra: quem escreve não aprova', 'CTA: comentar "quero o passo a passo"'],
+    arte: 'Gravação de tela do painel com zoom no comentário do revisor. Capa: "Agente revisa agente".' },
+  { pilar: 'bastidores', formato: 'bastidores', title: 'O que os agentes fecharam esta semana',
+    body: 'Resumo da semana dos agentes: tarefas fechadas [número do painel], PRs abertos [número] e o que quebrou [descrever].\n\nEu só publico número que tem fonte no painel.\n\nSalva para comparar com a próxima semana.',
+    arte: 'Print real do painel de tarefas da semana, dados sensíveis cobertos. Preencher os [números] antes de aprovar.' },
+  { pilar: 'tutorial', formato: 'carrossel', title: '3 regras para agentes não saírem do controle',
+    body: 'Regras que eu uso para deixar agentes trabalharem sem eu vigiar:\n\n1. Orçamento antes de qualquer tarefa pesada\n2. Nada é publicado sem meu clique\n3. Quem escreve não aprova\n\nQual dessas você ainda não usa? Comenta.',
+    slides: ['3 regras para agentes não saírem do controle', 'Regra 1: checar orçamento antes de começar', 'Regra 2: nada vai ao ar sem aprovação humana', 'Regra 3: quem escreve não é quem aprova', 'Qual você ainda não usa?'],
+    arte: 'Mesmo template do primeiro carrossel; número grande em cada slide de regra.' },
+  { pilar: 'resultado', formato: 'reel', title: 'O erro que um agente cometeu e como corrigi',
+    body: 'Agente erra. O que importa é como o erro aparece e como é corrigido.\n\nNeste vídeo mostro um erro real da semana [descrever] e a correção.\n\nSegue para ver os próximos, sem edição bonita.',
+    roteiro: ['0-3s: gancho: "Meu agente errou e eu mostro o erro"', '3-18s: tela do erro real [escolher da semana]', '18-35s: como foi detectado e corrigido', '35-40s: regra nova que saiu disso', 'CTA: seguir'],
+    arte: 'Gravação de tela. Escolher um erro real do histórico antes de gravar; não encenar.' },
+  { pilar: 'resultado', formato: 'bastidores', title: 'Custo real de operar agentes',
+    body: 'Quanto custa manter agentes trabalhando? Esta semana: [valor, com fonte no painel de uso].\n\nPlano fixo, sem API paga extra. Eu mostro o consumo para você ver que dá para começar pequeno.\n\nComenta se quer ver o custo por empresa.',
+    arte: 'Print do painel de uso (consumo do plano), valores reais. Preencher antes de aprovar.' },
+  { pilar: 'tutorial', formato: 'carrossel', title: 'Como começar sua primeira empresa com agentes',
+    body: 'Se eu começasse hoje, faria assim:\n\n1. Escolha um processo chato e repetitivo\n2. Escreva o passo a passo como para um estagiário\n3. Dê a um agente e revise o resultado\n4. Só depois automatize\n\nSalva para quando for começar.',
+    slides: ['Como começar sua primeira empresa com agentes', 'Passo 1: um processo chato e repetitivo', 'Passo 2: escreva como para um estagiário', 'Passo 3: o agente faz, você revisa', 'Passo 4: só então automatize', 'Salva e segue'],
+    arte: 'Template dos carrosséis, ícone simples por passo.' },
+  { pilar: 'bastidores', formato: 'reel', title: 'Meu painel de aprovação em 30 segundos',
+    body: 'Todo post, e-mail e mudança passa por um clique meu. Os agentes preparam, eu decido.\n\nMostro o painel por dentro.\n\nQuer ver como montar o seu? Comenta.',
+    roteiro: ['0-3s: gancho: "Nada vai ao ar sem meu clique"', '3-20s: painel com rascunhos pendentes', '20-30s: clique em aprovar e item sai da fila', '30-35s: por que isso importa', 'CTA: comentar'],
+    arte: 'Gravação de tela do painel do assistente, rascunhos de exemplo.' },
+]
