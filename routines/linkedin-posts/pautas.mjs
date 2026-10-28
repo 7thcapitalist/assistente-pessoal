@@ -6,7 +6,7 @@ export const PAUTAS = [
   {
     tema: 'interno',
     title: 'O gargalo não era a IA',
-    fonte: 'lição abstrata de studios/software/STATE.md (diagnóstico da fábrica)',
+    fonte: 'experiência própria operando agentes (lição abstrata)',
     body: `O gargalo do meu negócio operado por agentes de IA não era a IA. Era a infraestrutura.
 
 Coloquei agentes demais trabalhando ao mesmo tempo na mesma máquina. Tudo ficou lento e coisas começaram a cair.
@@ -19,7 +19,7 @@ Antes de adicionar mais um agente, meça a carga.`,
   {
     tema: 'interno',
     title: 'Agente rodando não é agente trabalhando',
-    fonte: 'lição abstrata de reports/2026-10-27.md',
+    fonte: 'experiência própria operando agentes (lição abstrata)',
     body: `Descobri que alguns dos meus agentes "rodavam" sem fazer trabalho nenhum. O painel dizia que estava tudo certo, mas nada andava.
 
 Lição: "rodando" não é "trabalhando". Hoje toda tarefa só fecha com evidência: teste, link ou entrega verificável.`,
@@ -28,7 +28,7 @@ Lição: "rodando" não é "trabalhando". Hoje toda tarefa só fecha com evidên
   {
     tema: 'interno',
     title: 'Falha silenciosa é a pior falha',
-    fonte: 'lição abstrata de studios/software/STATE.md (diagnóstico, itens 2 e 3)',
+    fonte: 'experiência própria operando agentes (lição abstrata)',
     body: `O pior erro que tive operando agentes não foi o que gritou. Foi o que ficou quieto.
 
 Um fluxo falhava e caía em silêncio para um caminho alternativo. Tudo parecia funcionar, mas o resultado saía errado.
@@ -39,8 +39,8 @@ Prefiro um erro barulhento a um fallback silencioso. Quem opera agentes precisa 
   {
     tema: 'interno',
     title: 'Teste verde não é produto bom',
-    fonte: 'lição abstrata de studios/roblox/STATE.md (revisão visual reprovada)',
-    body: `Os testes automáticos passavam, mas a revisão visual reprovou o resultado: tinha cara de coisa feita por IA.
+    fonte: 'experiência própria operando agentes (lição abstrata)',
+    body: `Os testes automáticos passavam, mas a revisão reprovou o resultado: tinha cara de coisa feita por IA.
 
 Teste verde diz que funciona. Não diz que alguém quer usar.
 
@@ -50,7 +50,7 @@ Por isso mantenho uma revisão de qualidade como portão separado, com olho huma
   {
     tema: 'interno',
     title: 'O que aprendi gerindo agentes',
-    fonte: 'lição abstrata de studios/software/STATE.md + reports/2026-10-27.md',
+    fonte: 'experiência própria operando agentes (lição abstrata)',
     body: `Três lições de operar um negócio com agentes de IA:
 
 - Meça a carga antes de aumentar o time.
