@@ -124,3 +124,15 @@ test('salvarEnv troca só a chave pedida e mantém o resto', () => {
   salvarEnv('INSTAGRAM_IA_USERNAME', 'novo', f);
   assert.equal(readFileSync(f, 'utf8'), 'A=1\nINSTAGRAM_IA_USERNAME=novo\n');
 });
+
+test('carrossel: slides prontos voltam anexados na tarefa', async () => {
+  const db = store.openDb(':memory:'), pc = fakePc(), media = mkdtempSync(join(tmpdir(), 'm-'));
+  const d = store.createDraft(db, 'instagram-ia', 'instagram', { title: 'Carrossel · x', body: 'legenda', meta: { formato: 'carrossel' }, processing: true });
+  await syncDrafts(db, pc, { mediaDir: media });
+  const [i] = pc.issues.values();
+  const a = join(media, 'slide-01.jpg'), b = join(media, 'slide-02.jpg'); writeFileSync(a, 'x'); writeFileSync(b, 'y');
+  store.finishProcessing(db, d.id, { media: [{ kind: 'slide', path: a, mime: 'image/jpeg' }, { kind: 'slide', path: b, mime: 'image/jpeg' }] });
+  await syncDrafts(db, pc, { mediaDir: media });
+  assert.equal(i.status, 'in_review'); assert.equal(pc.uploads.length, 2);
+  assert.match(pc.coms.get(i.id).at(-1).body, /2 slides anexados/);
+});

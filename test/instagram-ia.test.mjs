@@ -86,3 +86,23 @@ test('publish de Reel sem vídeo editado falha antes de abrir link público', as
   const ctx = mkCtx({ INSTAGRAM_IA_USERNAME: 'joao.empresasia' }); ctx.exposeFiles = async () => { throw new Error('não devia abrir') }
   await assert.rejects(r.publish({ title: 't', body: 'x', meta: { formato: 'reel' }, media: [] }, ctx), /sem vídeo editado/)
 })
+
+test('carrossel nasce em edição; process gera JPEGs 1080x1350 e publish expõe os arquivos', async () => {
+  const { mkdtempSync, existsSync } = await import('node:fs'), { tmpdir } = await import('node:os'), { execFileSync } = await import('node:child_process')
+  const d = montarRascunho(lerCalendario().find((p) => p.formato === 'carrossel'))
+  assert.equal(d.processing, true); assert.ok(d.meta.slides.length >= 2)
+  const mediaDir = mkdtempSync(tmpdir() + '/s-')
+  const out = await r.process({ id: 'd1', title: d.title, meta: d.meta, media: [] }, { mediaDir, log() {} })
+  assert.equal(out.media.length, d.meta.slides.length)
+  for (const m of out.media) {
+    assert.equal(m.kind, 'slide'); assert.ok(existsSync(m.path))
+    const wh = execFileSync(process.env.FFPROBE || 'ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', m.path]).toString().trim()
+    assert.equal(wh, '1080,1350')
+  }
+  const calls = []; const ctx = mkCtx({ INSTAGRAM_IA_USERNAME: 'joao.empresasia' }, calls); let fechou = false
+  ctx.exposeFiles = async (files) => ({ urls: files.map((f) => 'https://t.example/tok/' + f.split('/').pop()), close: () => { fechou = true } })
+  await r.publish({ body: 'x', title: 'x', meta: { ...d.meta, imageUrls: [] }, media: out.media }, ctx)
+  const c = calls.find(([t]) => t === 'INSTAGRAM_CREATE_CAROUSEL_CONTAINER')
+  assert.equal(c[1].child_image_urls.length, out.media.length); assert.ok(c[1].child_image_urls.every((u) => u.startsWith('https://t.example/tok/slide-')))
+  assert.ok(fechou)
+})

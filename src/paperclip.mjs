@@ -145,10 +145,16 @@ export async function syncDrafts(db, pc, { mediaDir } = {}) {
       const novo = STATUS_TAREFA[d.status];
       if (d.status === 'pending' && link.last === 'processing') {
         const final = [...d.media].reverse().find((x) => x.kind === 'video_final');
+        const slides = d.media.filter((x) => x.kind === 'slide' && existsSync(x.path));
         let nota = 'Vídeo editado.';
         if (final && existsSync(final.path)) {
           try { await pc.upload(link.issueId, final.path, 'video/mp4'); nota = 'Vídeo editado anexado aqui.'; }
           catch (e) { nota = `Vídeo editado em ${final.path} (não consegui anexar: ${e.message}).`; }
+        }
+        if (slides.length) {
+          let ok = 0;
+          for (const s of slides) { try { await pc.upload(link.issueId, s.path, 'image/jpeg'); ok++; } catch { /* conta abaixo */ } }
+          nota = ok === slides.length ? `${ok} slides anexados aqui.` : `Slides em ${dirname(slides[0].path)} (anexei só ${ok} de ${slides.length}).`;
         }
         await pc.patchIssue(link.issueId, { description: descrever(d) });
         await pc.say(link, `${nota}\n\n${COMO_APROVAR}`);
