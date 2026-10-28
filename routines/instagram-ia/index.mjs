@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { renderA, renderB, renderC, pickMusic } from '../../src/reels/render.mjs'
+import { renderSlides } from '../../src/reels/slides.mjs'
 
 const CALENDARIO = new URL('../../data/instagram/calendario.json', import.meta.url)
 const USERNAME_KEY = 'INSTAGRAM_IA_USERNAME'
@@ -27,7 +28,7 @@ export function montarRascunho(p) {
   const tipo = TIPO[p.tipo] || null
   const meta = { calId: p.id, tema: p.pilar, formato: p.formato, tipo, noticia: !!p.noticia, fonte: p.fonte ?? null, arte: p.arte, hashtags: [], imageUrls: [], videoUrl: null }
   const d = { title: tipo ? `Reel ${tipo} · ${p.titulo}` : `Carrossel · ${p.titulo}`, body: p.legenda, media: [], meta, scheduledFor: new Date(p.data).toISOString() }
-  if (p.formato === 'carrossel') meta.slides = p.slides
+  if (p.formato === 'carrossel') { meta.slides = p.slides; d.processing = true }
   else if (tipo === 'A') { meta.roteiro = p.roteiro; d.needs = [{ type: 'record_video', script: roteiroTexto(p.roteiro), durationSec: p.roteiro.duracaoSeg, notes: 'Vertical, de pé, luz na frente, microfone perto.' }] }
   else if (tipo === 'B') { meta.cenas = p.cenas; d.processing = true }
   else if (tipo === 'C') { meta.cenas = p.cenas; meta.narracao = p.narracao; d.needs = [{ type: 'record_audio', script: p.narracao, durationSec: p.cenas.reduce((a, c) => a + c.segundos, 0) }] }
@@ -89,6 +90,11 @@ export default {
   async process(draft, ctx) {
     const m = draft.meta, dir = join(ctx.mediaDir, draft.id, 'edit')
     const titulo = draft.title.replace(/^(Reel [ABC]|Carrossel) · /, '')
+    if (m.formato === 'carrossel') {
+      const files = await renderSlides({ slides: m.slides, outDir: dir })
+      ctx.log(`slides ${draft.id}: ${files.length} JPEG 1080x1350`)
+      return { media: files.map((path) => ({ kind: 'slide', path, mime: 'image/jpeg' })) }
+    }
     const music = pickMusic(ctx.musicDir, draft.id)
     const ultimo = (kind) => [...draft.media].reverse().find((x) => x.kind === kind)?.path
     let r
@@ -133,11 +139,19 @@ export default {
         return await finalizar(ctx, c, ig, container)
       } finally { pub?.close() }
     } else {
-      const urls = m.imageUrls || []
-      if (!urls.length || !urls.every(https)) throw new Error('Falta meta.imageUrls: URLs https públicas de JPEG (edite o rascunho)')
-      container = urls.length === 1
-        ? idDe(await exec(ctx, c, 'INSTAGRAM_POST_IG_USER_MEDIA', { ig_user_id: ig, image_url: urls[0], caption: draft.body }))
-        : idDe(await exec(ctx, c, 'INSTAGRAM_CREATE_CAROUSEL_CONTAINER', { ig_user_id: ig, child_image_urls: urls, caption: draft.body }))
+      let urls = m.imageUrls || []
+      try {
+        if (!urls.length || !urls.every(https)) {
+          const slides = (draft.media || []).filter((x) => x.kind === 'slide').map((x) => x.path)
+          if (!slides.length) throw new Error('Falta meta.imageUrls ou slides gerados: URLs https públicas de JPEG (edite o rascunho)')
+          pub = await ctx.exposeFiles(slides)
+          urls = pub.urls
+        }
+        container = urls.length === 1
+          ? idDe(await exec(ctx, c, 'INSTAGRAM_POST_IG_USER_MEDIA', { ig_user_id: ig, image_url: urls[0], caption: draft.body }))
+          : idDe(await exec(ctx, c, 'INSTAGRAM_CREATE_CAROUSEL_CONTAINER', { ig_user_id: ig, child_image_urls: urls, caption: draft.body }))
+        return await finalizar(ctx, c, ig, container)
+      } finally { pub?.close() }
     }
     return finalizar(ctx, c, ig, container)
   },

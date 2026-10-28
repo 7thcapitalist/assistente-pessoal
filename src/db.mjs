@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 
 export const STATUS = ['needs_joao', 'processing', 'pending', 'approved', 'publishing', 'rejected', 'published', 'failed'];
 export const NEED_TYPES = ['record_video', 'record_audio'];
-export const MEDIA_KINDS = ['video_raw', 'audio', 'video_final', 'cover'];
+export const MEDIA_KINDS = ['video_raw', 'audio', 'video_final', 'cover', 'slide'];
 
 export function openDb(path = process.env.ASSISTENTE_DB || new URL('../data/assistente.db', import.meta.url).pathname) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
