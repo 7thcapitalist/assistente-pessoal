@@ -1,0 +1,106 @@
+{
+  "conta": "nova (a definir pelo João); nunca @studio.frontstep nem @yourstyle.snkrshop",
+  "fuso": "America/Sao_Paulo",
+  "rascunhos": [
+    {
+      "id": "ig-01", "data": "2026-11-03T12:00:00-03:00", "pilar": "como_eu_faco", "formato": "reel", "tipo": "B_imagens", "status": "rascunho",
+      "titulo": "3 regras para agente não sair do controle",
+      "legenda": "Agente sem regra faz bagunça rápida.\n\nTrês regras que eu uso para deixar agentes trabalharem sem eu ficar vigiando:\n1. Orçamento antes de qualquer tarefa pesada\n2. Nada vai ao ar sem o meu clique\n3. Quem escreve não é quem aprova\n\nQual dessas você ainda não usa? Comenta aqui.",
+      "cenas": [
+        { "segundos": 3, "card": "Agente sem regra faz bagunça rápida", "naTela": "Agente sem regra faz bagunça rápida" },
+        { "segundos": 6, "card": "1", "naTela": "Regra 1: confira o orçamento antes da tarefa pesada" },
+        { "segundos": 6, "card": "2", "naTela": "Regra 2: nada vai ao ar sem aprovação humana" },
+        { "segundos": 6, "card": "3", "naTela": "Regra 3: quem escreve não aprova" },
+        { "segundos": 5, "card": "Qual você ainda não usa?", "naTela": "Qual você ainda não usa? Comenta" }
+      ],
+      "arte": "Fundo escuro, texto branco grande, número da regra em destaque. Capa: 3 regras."
+    },
+    {
+      "id": "ig-02", "data": "2026-11-05T19:00:00-03:00", "pilar": "bastidores", "formato": "reel", "tipo": "A_gravar", "status": "rascunho",
+      "titulo": "Quem sou eu e o que esta conta vai mostrar",
+      "legenda": "Eu opero negócios com agentes de IA.\n\nTenho um negócio em que agentes fazem prospecção e funil de vendas quase sozinhos. Eu aprovo, eles executam.\n\nAqui eu conto o que funciona, o que quebra e como eu conserto.\n\nSegue para acompanhar.",
+      "roteiro": {
+        "duracaoSeg": 30,
+        "gancho": { "segundos": 2, "fala": "Eu não uso IA pra escrever texto.", "naTela": "Eu não uso IA pra escrever texto" },
+        "blocos": [
+          { "de": 2, "ate": 9, "fala": "Eu uso IA pra tocar negócio. Tenho uma operação em que agentes fazem prospecção e funil de vendas quase sozinhos.", "naTela": "Agentes tocando um negócio" },
+          { "de": 9, "ate": 18, "fala": "Eu não faço o trabalho. Eu aprovo, e eles executam. Nada sai sem o meu clique.", "naTela": "Eu aprovo. Eles executam" },
+          { "de": 18, "ate": 26, "fala": "Nesta conta eu mostro o que funciona, o que quebra, e como eu conserto.", "naTela": "O que funciona, o que quebra, o conserto" },
+          { "de": 26, "ate": 30, "fala": "Segue pra acompanhar.", "naTela": "Segue pra acompanhar" }
+        ]
+      },
+      "arte": "Capa: rosto do João + texto 'Empresa operada por agentes'. Gravar vertical, luz na frente, sem nada de empresa ao fundo."
+    },
+    {
+      "id": "ig-03", "data": "2026-11-07T10:00:00-03:00", "pilar": "bastidores", "formato": "reel", "tipo": "C_voz", "status": "rascunho",
+      "titulo": "Prompt bonito não é operação",
+      "legenda": "Prompt bonito resolve uma tarefa. Operação resolve o mês inteiro.\n\nA diferença está em quem confere, quem aprova e o que acontece quando dá errado.\n\nVocê já passou de prompt para processo? Conta aqui.",
+      "narracao": "Prompt bonito resolve uma tarefa. Operação resolve o mês inteiro. Quando você usa IA só no chat, tudo depende de você lembrar de pedir. Quando você monta uma operação, o agente sabe qual é a tarefa, quem confere o resultado e o que fazer quando dá errado. Foi essa virada que me fez parar de usar IA como assistente e começar a usar como equipe. Se você ainda está na fase do prompt, tudo bem. O próximo passo é escrever o processo, não o prompt.",
+      "cenas": [
+        { "segundos": 6, "card": "Prompt bonito resolve uma tarefa", "naTela": "Prompt bonito = 1 tarefa" },
+        { "segundos": 6, "card": "Operação resolve o mês inteiro", "naTela": "Operação = o mês inteiro" },
+        { "segundos": 10, "card": "Quem pede? Quem confere? O que fazer se der errado?", "naTela": "Quem confere? E se der errado?" },
+        { "segundos": 8, "card": "De assistente para equipe", "naTela": "De assistente para equipe" },
+        { "segundos": 6, "card": "Escreva o processo, não o prompt", "naTela": "Escreva o processo, não o prompt" }
+      ],
+      "arte": "Cards de texto sobre fundo escuro, transição simples. Capa: Prompt x Operação."
+    },
+    {
+      "id": "ig-04", "data": "2026-11-08T20:00:00-03:00", "pilar": "bastidores", "formato": "carrossel", "tipo": null, "status": "rascunho",
+      "titulo": "Eu opero negócios com agentes de IA",
+      "legenda": "Eu não uso IA só para escrever texto. Eu montei um negócio em que agentes fazem o trabalho.\n\nProspecção e funil de vendas rodam quase sozinhos. Eu aprovo, eles executam.\n\nNesta conta eu conto o que aprendi.\n\nSalva este post e segue para acompanhar.",
+      "slides": ["Eu opero negócios com agentes de IA", "Não é prompt bonito: é operação rodando", "Prospecção e funil de vendas feitos por agentes", "Eu aprovo. Eles executam", "Aqui: o que funciona, o que quebra e o conserto", "Segue para acompanhar"],
+      "arte": "Fundo escuro, 1 ideia por slide, sem print de sistema nem nome de ferramenta."
+    },
+    {
+      "id": "ig-05", "data": "2026-11-10T12:00:00-03:00", "pilar": "como_eu_faco", "formato": "reel", "tipo": "C_voz", "status": "rascunho",
+      "titulo": "Orçamento antes da tarefa",
+      "legenda": "Agente não tem noção de custo. Você precisa dar.\n\nAntes de qualquer tarefa pesada, a primeira pergunta é: quanto isso pode gastar? Se passar do limite, ele para e pede minha decisão.\n\nVocê controla o custo dos seus agentes? Comenta.",
+      "narracao": "Agente não tem noção de custo. Se você não der um limite, ele vai gastar o que precisar para terminar. Por isso a minha primeira regra é: antes de qualquer tarefa pesada, o agente confere quanto ainda pode gastar. Se a tarefa passa do limite, ele para e me pergunta. Parece detalhe, mas é isso que deixa eu dormir tranquilo com tudo rodando. Defina o limite antes de ligar o agente, não depois do susto.",
+      "cenas": [
+        { "segundos": 6, "card": "Agente não tem noção de custo", "naTela": "Agente não tem noção de custo" },
+        { "segundos": 8, "card": "Sem limite, ele gasta o que precisar", "naTela": "Sem limite, ele gasta o que precisar" },
+        { "segundos": 10, "card": "Regra: conferir o orçamento antes da tarefa pesada", "naTela": "Confere o orçamento antes" },
+        { "segundos": 8, "card": "Passou do limite? Para e pergunta", "naTela": "Passou do limite? Para e pergunta" },
+        { "segundos": 6, "card": "Limite antes de ligar, não depois do susto", "naTela": "Limite antes do susto" }
+      ],
+      "arte": "Cards escuros com um medidor simples desenhado (barra de orçamento), sem números reais. Capa: Limite antes do susto."
+    },
+    {
+      "id": "ig-06", "data": "2026-11-12T19:00:00-03:00", "pilar": "erro_e_correcao", "formato": "reel", "tipo": "A_gravar", "status": "rascunho",
+      "titulo": "O dia que o agente disse 'feito' sem estar feito",
+      "legenda": "Meu agente disse que tinha terminado. Não tinha.\n\nDesde então, a regra aqui é: evidência ou não aconteceu. Sem link, teste ou captura de tela, a tarefa não fecha.\n\nSegue para ver os próximos erros e consertos.",
+      "roteiro": {
+        "duracaoSeg": 35,
+        "gancho": { "segundos": 2, "fala": "Meu agente mentiu pra mim.", "naTela": "Meu agente mentiu pra mim" },
+        "blocos": [
+          { "de": 2, "ate": 10, "fala": "Calma, não foi de propósito. Ele me disse que a tarefa estava pronta. Eu fui conferir, e não estava.", "naTela": "Ele disse: pronto. Não estava" },
+          { "de": 10, "ate": 20, "fala": "O agente fecha a tarefa quando acha que terminou, não quando terminou de verdade. É diferente.", "naTela": "Achar que terminou ≠ terminar" },
+          { "de": 20, "ate": 31, "fala": "Agora a regra é: evidência ou não aconteceu. Sem link, sem teste, sem captura de tela, a tarefa não fecha.", "naTela": "Evidência ou não aconteceu" },
+          { "de": 31, "ate": 35, "fala": "Já te aconteceu isso? Comenta.", "naTela": "Já te aconteceu? Comenta" }
+        ]
+      },
+      "arte": "Capa: 'Evidência ou não aconteceu'. Sem tela de sistema; só o João falando e texto na tela."
+    },
+    {
+      "id": "ig-07", "data": "2026-11-14T10:00:00-03:00", "pilar": "ia_no_mundo", "formato": "reel", "tipo": "B_imagens", "status": "rascunho",
+      "noticia": true, "fonte": null,
+      "titulo": "IA da semana: [lançamento]",
+      "legenda": "Saiu esta semana: [fato verificado em uma frase].\n\nMinha leitura: [opinião do João em 2 linhas].\n\nFonte: [URL da fonte].\n\nSalva para comparar com o que vem aí.",
+      "cenas": [
+        { "segundos": 4, "card": "IA da semana", "naTela": "IA da semana" },
+        { "segundos": 8, "card": "[fato verificado]", "naTela": "[fato verificado]" },
+        { "segundos": 8, "card": "Minha leitura: [opinião]", "naTela": "Minha leitura: [opinião]" },
+        { "segundos": 5, "card": "Fonte: [URL]", "naTela": "Fonte na legenda" }
+      ],
+      "arte": "Cards com o título do fato e a fonte. Pendente: preencher [campos] e meta fonte com notícia real da semana de 9 a 13/11, conferida em fonte primária, antes de aprovar. Nunca inventar."
+    },
+    {
+      "id": "ig-08", "data": "2026-11-15T20:00:00-03:00", "pilar": "como_eu_faco", "formato": "carrossel", "tipo": null, "status": "rascunho",
+      "titulo": "Como começar sua primeira operação com agentes",
+      "legenda": "Se eu começasse hoje, faria assim:\n\n1. Escolha um processo chato e repetitivo\n2. Escreva o passo a passo como para um estagiário\n3. Dê a um agente e revise o resultado\n4. Só depois automatize\n\nSalva para quando for começar.",
+      "slides": ["Como começar sua primeira operação com agentes", "Passo 1: um processo chato e repetitivo", "Passo 2: escreva como para um estagiário", "Passo 3: o agente faz, você revisa", "Passo 4: só então automatize", "Salva e segue"],
+      "arte": "Mesmo template do primeiro carrossel; ícone simples por passo."
+    }
+  ]
+}
