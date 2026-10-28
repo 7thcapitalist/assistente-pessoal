@@ -14,4 +14,11 @@ const rej = mk('instagram-ia', 'instagram', { title: 'Reel genérico sobre IA', 
 store.decide(db, rej.id, 'reject');
 const fail = mk('instagram-ia', 'instagram', { title: 'Post sobre ferramentas de IA', body: 'Cinco ferramentas que uso toda semana.' });
 store.decide(db, fail.id, 'approve'); store.markFailed(db, fail.id, 'NEEDS_CONNECT: conectar o Instagram no Composio (link no card)');
+mk('instagram-ia', 'instagram', { title: 'Reel: 3 tarefas que a IA faz por você', body: 'Salve para testar depois.\n\n#ia #produtividade',
+  needs: [{ type: 'record_video', durationSec: 30, notes: 'Luz natural, câmera na altura dos olhos.',
+    script: 'Oi! Em 30 segundos: três tarefas chatas que eu passei para a IA.\n1. Resumo das minhas reuniões.\n2. Rascunho de resposta de e-mail.\n3. Lista de prioridades do dia.\nSalva esse vídeo e testa hoje.' }] });
+mk('instagram-ia', 'instagram', { title: 'Reel: narração sobre rotina com IA', body: 'Rotina simples, resultado grande.',
+  needs: [{ type: 'record_audio', durationSec: 45, script: 'Minha manhã mudou quando eu parei de abrir o e-mail antes do café. Hoje a IA separa o que é urgente e eu só decido.' }] });
+const ed = mk('instagram-ia', 'instagram', { title: 'Reel: atalhos de IA (em edição)', body: 'Atalhos que economizam tempo.', needs: [{ type: 'record_video', script: 'Mostre dois atalhos.' }] });
+store.attachUpload(db, ed.id, { needIndex: 0, media: { kind: 'video_raw', path: '/tmp/demo-bruto.mp4', mime: 'video/mp4', bytes: 1048576 } });
 console.log('ok');

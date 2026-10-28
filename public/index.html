@@ -19,8 +19,8 @@
   .tag { font-size:12px; padding:2px 8px; border-radius:99px; border:1px solid var(--line); color:var(--mut); }
   .tag.linkedin { color:#0a66c2; border-color:#0a66c2; } .tag.instagram { color:#c13584; border-color:#c13584; }
   .tag.failed, .tag.erro { color:var(--bad); border-color:var(--bad); } .tag.approved { color:var(--warn); border-color:var(--warn); } .tag.published, .tag.ok { color:var(--ok); border-color:var(--ok); }
-  button.b { font:inherit; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
-  button.b.go { background:var(--ok); border-color:var(--ok); color:#fff; } button.b.no { color:var(--bad); border-color:var(--bad); }
+  .b { font:inherit; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+  .b.go { background:var(--ok); border-color:var(--ok); color:#fff; } .b.no { color:var(--bad); border-color:var(--bad); }
   pre.body { white-space:pre-wrap; font:inherit; margin:8px 0; } textarea, input[type=text] { width:100%; font:inherit; padding:8px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); }
   textarea { min-height:160px; } .acts { display:flex; gap:8px; margin-top:8px; } .err { color:var(--bad); font-size:13px; }
   .media { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; } .media img { max-height:140px; border-radius:8px; border:1px solid var(--line); }
@@ -28,10 +28,17 @@
   .sw i { position:absolute; inset:0; border-radius:99px; background:var(--line); transition:.15s; pointer-events:none; } .sw i::after { content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:.15s; }
   .sw input:checked + i { background:var(--ok); } .sw input:checked + i::after { left:21px; }
   input.sched { width:160px; font-family:ui-monospace, monospace; }
+  .media video, .media audio { max-width:100%; border-radius:8px; } .media video { max-height:420px; background:#000; }
+  .tag.needs_joao { color:var(--warn); border-color:var(--warn); } .tag.processing { color:var(--acc); border-color:var(--acc); }
+  #need .card { border-color:var(--warn); } #need h3 { margin:0 0 8px; } .script { white-space:pre-wrap; margin:8px 0; padding:12px; border-left:3px solid var(--warn); background:var(--bg); border-radius:4px; font-size:20px; line-height:1.6; }
+  .acts label.b { display:inline-block; } .acts input[type=file] { display:none; } .bar { height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:8px; } .bar i { display:block; height:100%; background:var(--ok); width:0; }
+  .b.rec { background:var(--bad); border-color:var(--bad); color:#fff; }
+  @media (max-width: 600px) { main, #need { padding-left:12px; padding-right:12px; } .b { padding:10px 14px; } }
 </style>
 </head>
 <body>
 <header><h1>Assistente do João</h1><span class="mut" id="stamp"></span></header>
+<section id="need" style="padding:16px 20px 0;max-width:980px"></section>
 <nav id="tabs"></nav>
 <main id="view"></main>
 <script>
@@ -43,7 +50,8 @@ const api = async (path, method = 'GET', body) => {
   const j = await r.json(); if (!r.ok) throw new Error(j.error); return j;
 };
 const CHANNELS = { linkedin: 'LinkedIn', instagram: 'Instagram', email: 'Email', tasks: 'Tarefas' };
-let S = null, tab = 'fila', editing = null;
+let S = null, tab = 'fila', editing = null, busy = 0; // busy: envio em andamento (não recarrega a tela)
+const STATUS_PT = { needs_joao: 'precisa de você', processing: 'editando', pending: 'aguardando', approved: 'aprovado', publishing: 'publicando', failed: 'falhou', published: 'publicado', rejected: 'recusado' };
 
 async function load() { S = await api('/state'); $('#stamp').textContent = 'atualizado ' + new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' }); render(); }
 const act = (fn) => async (...a) => { try { await fn(...a); } catch (e) { alert(e.message); } await load(); };
@@ -52,20 +60,111 @@ function render() {
   const pend = S.pending.length;
   const tabs = [['fila', `Fila de aprovação (${pend})`], ['rotinas', 'Rotinas'], ['historico', 'Histórico']];
   $('#tabs').replaceChildren(...tabs.map(([k, t]) => el('button', { className: tab === k ? 'on' : '', textContent: t, onclick: () => { tab = k; render(); } })));
+  renderNeed();
   $('#view').replaceChildren(...({ fila, rotinas, historico }[tab])());
 }
 
+const mediaUrl = (m) => '/media?p=' + encodeURIComponent(m.path);
+// vídeo/áudio tocam no card (Range é servido pelo painel); video_final aparece primeiro, com a capa como pôster.
+function mediaEls(d) {
+  const all = (d.media || []).filter((m) => m.path), hasFinal = all.some((m) => m.kind === 'video_final');
+  // com video_final, o bruto não aparece: só um player, para não ficar ambíguo o que se aprova
+  const ms = hasFinal ? all.filter((m) => m.kind !== 'video_raw') : all, cover = ms.find((m) => m.kind === 'cover');
+  const rank = (m) => (m.kind === 'video_final' ? 0 : m.kind === 'cover' ? 2 : 1);
+  return [...ms].sort((a, b) => rank(a) - rank(b)).map((m) => {
+    const t = (m.mime || '').split('/')[0] || (m.kind === 'audio' ? 'audio' : m.kind?.startsWith('video') ? 'video' : 'image');
+    if (t === 'video') return el('video', { src: mediaUrl(m), controls: true, playsInline: true, preload: 'metadata', poster: cover ? mediaUrl(cover) : '', title: m.kind });
+    if (t === 'audio') return el('audio', { src: mediaUrl(m), controls: true, preload: 'metadata', title: m.kind });
+    return el('img', { src: mediaUrl(m), alt: m.alt || m.kind || '' });
+  });
+}
+
 function draftCard(d, actions) {
-  const media = (d.media || []).filter((m) => m.path).map((m) => el('img', { src: '/media?p=' + encodeURIComponent(m.path), alt: m.alt || '' }));
+  const media = mediaEls(d);
   return el('div', { className: 'card' },
     el('div', { className: 'row' }, el('strong', { textContent: d.title }),
-      el('span', {}, el('span', { className: 'tag ' + d.channel, textContent: CHANNELS[d.channel] || d.channel }), ' ', el('span', { className: 'tag ' + d.status, textContent: { pending: 'aguardando', approved: 'aprovado', publishing: 'publicando', failed: 'falhou', published: 'publicado', rejected: 'recusado' }[d.status] }))),
+      el('span', {}, el('span', { className: 'tag ' + d.channel, textContent: CHANNELS[d.channel] || d.channel }), ' ', el('span', { className: 'tag ' + d.status, textContent: STATUS_PT[d.status] || d.status }))),
     el('div', { className: 'mut', textContent: `${d.routine} · criado ${fmt(d.created_at)}` + (d.scheduled_for ? ` · publicar em ${fmt(d.scheduled_for)}` : '') }),
     media.length ? el('div', { className: 'media' }, media) : null,
     el('pre', { className: 'body', textContent: d.body }),
     d.error ? el('div', { className: 'err', textContent: d.error }) : null,
     d.url ? el('a', { href: d.url, target: '_blank', rel: 'noopener', textContent: d.url }) : null,
     actions);
+}
+
+function sendFile(d, idx, file, bar) {
+  return new Promise((ok, fail) => {
+    const x = new XMLHttpRequest(), f = new FormData();
+    f.append('file', file, file.name || 'gravacao');
+    x.open('POST', `/api/drafts/${d.id}/upload?need=${idx}`); x.setRequestHeader('x-assistente', '1');
+    x.upload.onprogress = (e) => { if (e.lengthComputable) bar.style.width = (100 * e.loaded / e.total) + '%'; };
+    x.onload = () => { let j = {}; try { j = JSON.parse(x.responseText); } catch {} x.status < 300 ? ok(j) : fail(new Error(j.error || 'erro ' + x.status)); };
+    x.onerror = () => fail(new Error('falha de rede no envio'));
+    x.send(f);
+  });
+}
+
+function needItem(d, idx) {
+  const n = d.needs[idx], video = n.type === 'record_video';
+  const status = el('div', { className: 'mut' }), bar = el('i'), barBox = el('div', { className: 'bar', style: 'display:none' }, bar);
+  const go = async (file) => {
+    if (!file) return;
+    busy++; barBox.style.display = ''; status.textContent = `Enviando ${(file.size / 1048576).toFixed(1)} MB…`;
+    try { await sendFile(d, idx, file, bar); status.textContent = 'Recebido ✔'; } catch (e) { status.textContent = ''; status.className = 'err'; status.textContent = e.message; barBox.style.display = 'none'; busy--; return; }
+    busy--; await load();
+  };
+  const pick = (label, accept, capture) => {
+    const i = el('input', { type: 'file', accept, onchange: () => go(i.files[0]) });
+    if (capture) i.setAttribute('capture', capture);
+    return el('label', { className: 'b' + (capture ? ' go' : ''), textContent: label }, i);
+  };
+  const acts = el('div', { className: 'acts', style: 'flex-wrap:wrap' },
+    video ? pick('Gravar vídeo agora', 'video/*', 'user') : pick('Gravar áudio (app do celular)', 'audio/*', 'user'),
+    pick(video ? 'Subir vídeo bruto' : 'Subir áudio', video ? 'video/*' : 'audio/*', null));
+  const rb = video ? null : recorder(go);
+  if (rb) acts.append(rb);
+  return el('div', { className: 'card' },
+    el('div', { className: 'row' }, el('strong', { textContent: d.title }), el('span', { className: 'tag', textContent: video ? 'gravar vídeo' : 'gravar áudio' })),
+    el('div', { className: 'mut', textContent: [d.routine, n.durationSec ? `duração alvo: ${n.durationSec}s` : null].filter(Boolean).join(' · ') }),
+    el('div', { className: 'script', textContent: n.script }),
+    n.notes ? el('div', { className: 'mut', textContent: 'Dica: ' + n.notes }) : null,
+    acts, barBox, status);
+}
+
+// Gravação de áudio no navegador. Precisa de HTTPS/localhost (tailscale serve); sem isso o botão nem aparece e fica o upload de arquivo.
+function recorder(go) {
+  if (!window.MediaRecorder || !navigator.mediaDevices?.getUserMedia) return null;
+  const b = el('button', { className: 'b', textContent: 'Gravar aqui no navegador' });
+  let rec = null;
+  b.onclick = async () => {
+    if (rec) { rec.stop(); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true }), chunks = [];
+      rec = new MediaRecorder(stream);
+      rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+      rec.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop()); rec = null; b.className = 'b'; b.textContent = 'Gravar aqui no navegador';
+        const type = (chunks[0]?.type || 'audio/webm').split(';')[0], ext = type.includes('mp4') ? 'm4a' : type.includes('ogg') ? 'ogg' : 'webm';
+        go(new File(chunks, `gravacao.${ext}`, { type }));
+      };
+      rec.start(); b.className = 'b rec'; b.textContent = '■ Parar e enviar';
+    } catch (e) { alert('Não consegui usar o microfone (' + e.message + '). Use "Escolher arquivo".'); }
+  };
+  return b;
+}
+
+function renderNeed() {
+  if (busy) return; // não derruba um envio em andamento
+  const items = [...S.needsJoao, ...S.processing].flatMap((d) => d.needs.map((n, i) => (n.status === 'waiting' ? needItem(d, i) : null)).filter(Boolean));
+  const proc = S.processing.filter((d) => !d.needs.some((n) => n.status === 'waiting')).map((d) => {
+    const tries = d.meta?.edicao?.tentativas ?? 0;
+    return el('div', { className: 'card', style: 'border-color:' + (d.error ? 'var(--bad)' : 'var(--acc)') },
+      el('strong', { textContent: `Editando: ${d.title}` }),
+      el('div', { className: 'mut', textContent: d.error ? `Falhou (${tries}x). ` : 'Cortando silêncio, legendando e pondo música; volta para a fila quando terminar.' }),
+      d.error ? el('div', { className: 'err', textContent: d.error }) : null,
+      d.error ? el('div', { className: 'acts' }, el('button', { className: 'b', textContent: 'Tentar de novo', onclick: act(() => api(`/drafts/${d.id}/retry`, 'POST')) }), el('button', { className: 'b no', textContent: 'Descartar', onclick: act(() => api(`/drafts/${d.id}/reject`, 'POST')) })) : null);
+  });
+  $('#need').replaceChildren(...(items.length ? [el('h3', { textContent: `Precisa do João (${items.length})` }), ...items] : []), ...proc);
 }
 
 function editForm(d) {
@@ -115,7 +214,7 @@ function historico() {
   return S.history.map((d) => draftCard(d));
 }
 
-load(); setInterval(() => { if (editing === null && !document.activeElement?.matches('input,textarea')) load(); }, 15000);
+load(); setInterval(() => { if (!busy && editing === null && !document.activeElement?.matches('input,textarea')) load(); }, 15000);
 </script>
 </body>
 </html>

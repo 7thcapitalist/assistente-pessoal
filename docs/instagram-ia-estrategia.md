@@ -33,7 +33,7 @@ Promessa ao seguidor: "veja como uma pessoa sozinha opera várias empresas com a
 
 ## Frequência e horários (Brasília, UTC-3)
 - 4 posts por semana: **terça 12h (carrossel)**, **quinta 19h (reel)**, **sábado 10h (bastidores)**, **domingo 20h (carrossel ou reel)**.
-- Início: 2 semanas de rascunhos = 8 posts, aprovados um a um no painel.
+- Início: 4 semanas de rascunhos (3/11 a 29/11) = 16 posts, aprovados um a um no painel.
 - Ajustar horários depois de 3 semanas com os dados de alcance da própria conta.
 - Sem hashtags. Legenda: gancho na 1ª linha, 3–6 linhas, 1 chamada para ação (salvar, comentar ou seguir).
 

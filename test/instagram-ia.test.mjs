@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import r, { agenda } from '../routines/instagram-ia/index.mjs'
+import r, { montarRascunho, lerCalendario } from '../routines/instagram-ia/index.mjs'
 
 const mkCtx = (env = {}, calls = []) => {
   const drafts = [], st = {}
@@ -19,22 +19,23 @@ const mkCtx = (env = {}, calls = []) => {
 }
 const withList = (ctx, pend = []) => { ctx.drafts = Object.assign(ctx.drafts, {}); const arr = ctx.drafts; ctx.drafts = { list: async () => pend, push: (d) => arr.push(d), arr }; ctx.createDraft = async (d) => arr.push(d); return arr }
 
-test('gera 8 rascunhos em horários de Brasília, sem hashtags', async () => {
+test('gera um rascunho por item do calendário, com horário de Brasília e sem hashtags', async () => {
   const ctx = mkCtx(); const arr = withList(ctx)
   await r.run(ctx)
-  assert.equal(arr.length, 8)
+  assert.equal(arr.length, 16)
   for (const d of arr) {
     assert.ok(!/#\w/.test(d.body)); assert.deepEqual(d.meta.hashtags, [])
     const h = new Date(d.scheduledFor).getUTCHours() - 3
     assert.ok([12, 19, 10, 20].includes(h), `hora ${h}`)
   }
-  const datas = arr.map((d) => d.scheduledFor); assert.deepEqual(datas, [...datas].sort())
+  await r.run(ctx); assert.equal(arr.length, 16, 'não duplica na segunda execução')
 })
-test('não gera de novo com pendentes', async () => {
-  const ctx = mkCtx(); const arr = withList(ctx, [{}]); await r.run(ctx); assert.equal(arr.length, 0)
-})
-test('agenda ordenada e futura', () => {
-  const a = agenda(new Date('2026-10-28T12:00:00Z')); assert.equal(a.length, 8); assert.ok(a[0] > new Date('2026-10-28T12:00:00Z'))
+test('A pede vídeo bruto com roteiro; C pede áudio com a narração; B nasce em edição', () => {
+  const por = (t) => lerCalendario().find((p) => p.tipo === t)
+  const a = montarRascunho(por('A_gravar')), c = montarRascunho(por('C_voz')), b = montarRascunho(por('B_imagens'))
+  assert.equal(a.needs[0].type, 'record_video'); assert.match(a.needs[0].script, /GANCHO/)
+  assert.equal(c.needs[0].type, 'record_audio'); assert.equal(c.needs[0].script, por('C_voz').narracao)
+  assert.equal(b.processing, true); assert.equal(b.needs, undefined)
 })
 test('publish exige conta configurada', async () => {
   await assert.rejects(r.publish({ meta: {} }, mkCtx()), /NEEDS_CONNECT/)
@@ -58,12 +59,8 @@ test('publish carrossel e reel usam a conta travada', async () => {
 })
 
 test('nenhum rascunho gerado revela produto, empresa ou preço', async () => {
-  const { POSTS } = await import('../routines/instagram-ia/posts.mjs')
   const { conteudoProibido } = await import('../routines/instagram-ia/index.mjs')
-  for (const p of POSTS) {
-    const t = [p.title, p.body, ...(p.slides || []), ...(p.roteiro || []), p.arte].join('\n')
-    assert.equal(conteudoProibido(t), null, p.title)
-  }
+  for (const p of lerCalendario()) assert.equal(conteudoProibido(JSON.stringify(montarRascunho(p))), null, p.titulo)
 })
 test('publish recusa conteúdo vedado, [campo] aberto e notícia sem fonte', async () => {
   const ctx = mkCtx({ INSTAGRAM_IA_USERNAME: 'joao.empresasia' })
@@ -73,4 +70,39 @@ test('publish recusa conteúdo vedado, [campo] aberto e notícia sem fonte', asy
   await assert.rejects(r.publish({ title: 't', body: 'Saiu X', meta: { ...base, noticia: true } }, ctx), /fonte/)
   const ok = await r.publish({ title: 't', body: 'Saiu X', meta: { ...base, noticia: true, fonte: 'https://exemplo.com/x' } }, ctx)
   assert.equal(ok.externalId, 'X1')
+})
+
+test('publish de Reel editado expõe mp4+capa em https, manda cover_url e fecha o link', async () => {
+  const calls = []; const ctx = mkCtx({ INSTAGRAM_IA_USERNAME: 'joao.empresasia' }, calls)
+  let fechou = false
+  ctx.exposeFiles = async (files) => ({ urls: files.map((f) => 'https://t.example/tok/' + f.split('/').pop()), close: () => { fechou = true } })
+  const d = { title: 't', body: 'Legenda', meta: { formato: 'reel' }, media: [{ kind: 'video_raw', path: '/x/raw.mp4' }, { kind: 'video_final', path: '/x/reel-final.mp4' }, { kind: 'cover', path: '/x/reel-capa.jpg' }] }
+  const out = await r.publish(d, ctx)
+  const post = calls.find(([t]) => t === 'INSTAGRAM_POST_IG_USER_MEDIA')[1]
+  assert.equal(post.video_url, 'https://t.example/tok/reel-final.mp4'); assert.equal(post.cover_url, 'https://t.example/tok/reel-capa.jpg'); assert.equal(post.media_type, 'REELS')
+  assert.ok(fechou); assert.equal(out.externalId, 'X1')
+})
+test('publish de Reel sem vídeo editado falha antes de abrir link público', async () => {
+  const ctx = mkCtx({ INSTAGRAM_IA_USERNAME: 'joao.empresasia' }); ctx.exposeFiles = async () => { throw new Error('não devia abrir') }
+  await assert.rejects(r.publish({ title: 't', body: 'x', meta: { formato: 'reel' }, media: [] }, ctx), /sem vídeo editado/)
+})
+
+test('carrossel nasce em edição; process gera JPEGs 1080x1350 e publish expõe os arquivos', async () => {
+  const { mkdtempSync, existsSync } = await import('node:fs'), { tmpdir } = await import('node:os'), { execFileSync } = await import('node:child_process')
+  const d = montarRascunho(lerCalendario().find((p) => p.formato === 'carrossel'))
+  assert.equal(d.processing, true); assert.ok(d.meta.slides.length >= 2)
+  const mediaDir = mkdtempSync(tmpdir() + '/s-')
+  const out = await r.process({ id: 'd1', title: d.title, meta: d.meta, media: [] }, { mediaDir, log() {} })
+  assert.equal(out.media.length, d.meta.slides.length)
+  for (const m of out.media) {
+    assert.equal(m.kind, 'slide'); assert.ok(existsSync(m.path))
+    const wh = execFileSync(process.env.FFPROBE || 'ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', m.path]).toString().trim()
+    assert.equal(wh, '1080,1350')
+  }
+  const calls = []; const ctx = mkCtx({ INSTAGRAM_IA_USERNAME: 'joao.empresasia' }, calls); let fechou = false
+  ctx.exposeFiles = async (files) => ({ urls: files.map((f) => 'https://t.example/tok/' + f.split('/').pop()), close: () => { fechou = true } })
+  await r.publish({ body: 'x', title: 'x', meta: { ...d.meta, imageUrls: [] }, media: out.media }, ctx)
+  const c = calls.find(([t]) => t === 'INSTAGRAM_CREATE_CAROUSEL_CONTAINER')
+  assert.equal(c[1].child_image_urls.length, out.media.length); assert.ok(c[1].child_image_urls.every((u) => u.startsWith('https://t.example/tok/slide-')))
+  assert.ok(fechou)
 })
