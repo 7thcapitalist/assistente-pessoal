@@ -1,0 +1,14 @@
+[Unit]
+Description=Assistente do João: painel (só tailnet)
+After=network-online.target tailscaled.service
+
+[Service]
+WorkingDirectory=%h/apps/assistente-pessoal
+Environment=PORT=4180
+# Escuta só no IP da tailnet (não na rede local). Se mudar, edite via: systemctl --user edit assistente-painel
+ExecStart=/bin/sh -c 'HOST=$(tailscale ip -4 | head -n1) exec node bin/serve.mjs'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
