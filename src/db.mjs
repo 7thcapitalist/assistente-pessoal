@@ -3,7 +3,9 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
-export const STATUS = ['pending', 'approved', 'publishing', 'rejected', 'published', 'failed'];
+export const STATUS = ['needs_joao', 'processing', 'pending', 'approved', 'publishing', 'rejected', 'published', 'failed'];
+export const NEED_TYPES = ['record_video', 'record_audio'];
+export const MEDIA_KINDS = ['video_raw', 'audio', 'video_final', 'cover'];
 
 export function openDb(path = process.env.ASSISTENTE_DB || new URL('../data/assistente.db', import.meta.url).pathname) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
@@ -25,11 +27,35 @@ export function openDb(path = process.env.ASSISTENTE_DB || new URL('../data/assi
       id INTEGER PRIMARY KEY AUTOINCREMENT, routine TEXT NOT NULL, started_at TEXT NOT NULL,
       ok INTEGER NOT NULL, drafts INTEGER NOT NULL DEFAULT 0, log TEXT, error TEXT);
   `);
+  // migração: coluna needs (SOF-593)
+  if (!db.prepare('PRAGMA table_info(drafts)').all().some((c) => c.name === 'needs')) db.exec("ALTER TABLE drafts ADD COLUMN needs TEXT NOT NULL DEFAULT '[]'");
   return db;
 }
 
 const now = () => new Date().toISOString();
-const rowDraft = (r) => r && { ...r, media: JSON.parse(r.media), meta: JSON.parse(r.meta) };
+const rowDraft = (r) => r && { ...r, media: JSON.parse(r.media), meta: JSON.parse(r.meta), needs: JSON.parse(r.needs ?? '[]') };
+
+// needs: [{type, script, notes?, durationSec?, status}]; aceita um objeto só. Status nasce 'waiting'.
+export function normalizeNeeds(needs) {
+  const list = needs == null ? [] : [].concat(needs);
+  return list.map((n, i) => {
+    if (!n || !NEED_TYPES.includes(n.type)) throw new Error(`needs[${i}].type deve ser ${NEED_TYPES.join(' ou ')}`);
+    if (typeof n.script !== 'string' || !n.script.trim()) throw new Error(`needs[${i}] precisa de script`);
+    if (n.notes !== undefined && typeof n.notes !== 'string') throw new Error(`needs[${i}].notes deve ser texto`);
+    if (n.durationSec !== undefined && !(Number.isFinite(n.durationSec) && n.durationSec > 0)) throw new Error(`needs[${i}].durationSec inválido`);
+    const out = { type: n.type, script: n.script, status: n.status === 'received' ? 'received' : 'waiting' };
+    if (n.notes) out.notes = n.notes;
+    if (n.durationSec) out.durationSec = n.durationSec;
+    return out;
+  });
+}
+
+function checkMedia(media) {
+  for (const m of media ?? []) {
+    if (!m || typeof m.path !== 'string') throw new Error('media precisa de path');
+    if (m.kind !== undefined && !MEDIA_KINDS.includes(m.kind)) throw new Error(`media.kind inválido: ${m.kind}`);
+  }
+}
 
 function checkScheduledFor(v) {
   if (v && (typeof v !== 'string' || Number.isNaN(Date.parse(v)))) throw new Error('scheduledFor inválido');
@@ -39,10 +65,14 @@ export function createDraft(db, routine, channel, d) {
   if (!d || typeof d.title !== 'string' || !d.title.trim()) throw new Error('rascunho precisa de title');
   if (typeof d.body !== 'string' || !d.body.trim()) throw new Error('rascunho precisa de body');
   checkScheduledFor(d.scheduledFor);
+  checkMedia(d.media);
+  const needs = normalizeNeeds(d.needs);
+  // Com pedido ao João ainda sem resposta e sem mídia, o rascunho espera por ele antes de ir para a fila de aprovação.
+  const status = needs.some((n) => n.status === 'waiting') && !(d.media ?? []).length ? 'needs_joao' : 'pending';
   const id = randomUUID();
-  db.prepare(`INSERT INTO drafts (id, routine, channel, title, body, media, meta, scheduled_for, created_at)
-              VALUES (?,?,?,?,?,?,?,?,?)`).run(id, routine, channel, d.title.trim(), d.body,
-    JSON.stringify(d.media ?? []), JSON.stringify(d.meta ?? {}), d.scheduledFor ?? null, now());
+  db.prepare(`INSERT INTO drafts (id, routine, channel, title, body, media, meta, needs, scheduled_for, status, created_at)
+              VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(id, routine, channel, d.title.trim(), d.body,
+    JSON.stringify(d.media ?? []), JSON.stringify(d.meta ?? {}), JSON.stringify(needs), d.scheduledFor ?? null, status, now());
   return getDraft(db, id);
 }
 
@@ -61,14 +91,14 @@ export function listDrafts(db, { status, channel, routine, limit = 200 } = {}) {
 export function editDraft(db, id, { title, body, meta, scheduledFor }) {
   const d = getDraft(db, id);
   if (!d) throw new Error('rascunho não existe');
-  if (!['pending', 'failed'].includes(d.status)) throw new Error(`não dá pra editar rascunho ${d.status}`);
+  if (!['pending', 'failed', 'needs_joao'].includes(d.status)) throw new Error(`não dá pra editar rascunho ${d.status}`);
   checkScheduledFor(scheduledFor);
   db.prepare('UPDATE drafts SET title=?, body=?, meta=?, scheduled_for=? WHERE id=?').run(
     title ?? d.title, body ?? d.body, JSON.stringify(meta ?? d.meta), scheduledFor === undefined ? d.scheduled_for : scheduledFor || null, id);
   return getDraft(db, id);
 }
 
-const TRANSITIONS = { approve: ['pending', 'failed', 'approved'], reject: ['pending', 'failed', 'approved'] };
+const TRANSITIONS = { approve: ['pending', 'failed', 'approved'], reject: ['needs_joao', 'processing', 'pending', 'failed', 'approved'] };
 export function decide(db, id, action) {
   const d = getDraft(db, id);
   if (!d) throw new Error('rascunho não existe');
@@ -111,4 +141,32 @@ export function stateStore(db, routine) {
     get: (k) => { const r = db.prepare('SELECT v FROM state WHERE routine=? AND k=?').get(routine, k); return r ? JSON.parse(r.v) : undefined; },
     set: (k, v) => { db.prepare('INSERT INTO state (routine,k,v) VALUES (?,?,?) ON CONFLICT(routine,k) DO UPDATE SET v=excluded.v').run(routine, k, JSON.stringify(v)); },
   };
+}
+
+// Upload recebido: registra a mídia, marca o pedido como recebido e devolve o rascunho para a rotina editar (processing).
+export function attachUpload(db, id, { needIndex, media }) {
+  const d = getDraft(db, id);
+  if (!d) throw new Error('rascunho não existe');
+  if (!['needs_joao', 'processing'].includes(d.status)) throw new Error(`rascunho ${d.status} não recebe arquivo`);
+  checkMedia([media]);
+  const needs = d.needs;
+  if (needIndex !== undefined) {
+    if (!Number.isInteger(needIndex) || !needs[needIndex]) throw new Error('pedido não existe');
+    needs[needIndex].status = 'received';
+  }
+  const r = db.prepare("UPDATE drafts SET media=?, needs=?, status='processing', error=NULL WHERE id=? AND status IN ('needs_joao','processing')")
+    .run(JSON.stringify([...d.media, media]), JSON.stringify(needs), id);
+  if (r.changes !== 1) throw new Error('rascunho mudou de estado; tente de novo');
+  return getDraft(db, id);
+}
+
+// A rotina terminou de editar: troca/acrescenta mídia (ex.: video_final) e manda para a fila de aprovação.
+export function finishProcessing(db, id, { media = [], body } = {}) {
+  const d = getDraft(db, id);
+  if (!d) throw new Error('rascunho não existe');
+  if (d.status !== 'processing') throw new Error(`rascunho ${d.status} não está em edição`);
+  checkMedia(media);
+  db.prepare("UPDATE drafts SET media=?, body=?, status='pending' WHERE id=? AND status='processing'")
+    .run(JSON.stringify([...d.media, ...media]), body ?? d.body, id);
+  return getDraft(db, id);
 }

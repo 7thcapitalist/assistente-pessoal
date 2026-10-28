@@ -40,7 +40,10 @@ export function makeCtx(db, routine, { dry = false, logs = [] } = {}) {
   const composio = makeComposio();
   const st = store.stateStore(db, routine.id);
   return {
-    drafts: { list: (q = {}) => store.listDrafts(db, { ...q, routine: routine.id }) },
+    drafts: {
+      list: (q = {}) => store.listDrafts(db, { ...q, routine: routine.id }),
+      finishProcessing: (id, o) => (dry ? undefined : store.finishProcessing(db, id, o)),
+    },
     createDraft: (d) => {
       if (dry) { drafts.push(d); return d; }
       const row = store.createDraft(db, routine.id, routine.channel, d);
