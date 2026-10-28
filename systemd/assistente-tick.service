@@ -1,0 +1,8 @@
+[Unit]
+Description=Assistente do João: um ciclo do agendador (rotinas vencidas + publicar aprovados)
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/apps/assistente-pessoal
+ExecStart=/usr/bin/env node bin/tick.mjs
+TimeoutStartSec=600

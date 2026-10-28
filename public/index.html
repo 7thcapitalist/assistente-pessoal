@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistente do João</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1c2230; --mut:#667085; --line:#e4e7ec; --ok:#12805c; --warn:#b54708; --bad:#b42318; --acc:#2455d6; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12151c; --card:#1a1f2a; --ink:#e8ebf2; --mut:#98a2b3; --line:#2b3242; --ok:#4cc79a; --warn:#f5a54a; --bad:#f47c72; --acc:#7da2ff; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:14px 20px; border-bottom:1px solid var(--line); background:var(--card); display:flex; gap:16px; align-items:center; }
+  h1 { font-size:18px; margin:0; } .mut { color:var(--mut); font-size:13px; }
+  nav { display:flex; gap:4px; padding:10px 20px 0; } nav button { border:0; background:none; color:var(--mut); padding:8px 14px; font:inherit; cursor:pointer; border-bottom:2px solid transparent; }
+  nav button.on { color:var(--ink); border-color:var(--acc); font-weight:600; }
+  main { padding:16px 20px 40px; max-width:980px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:12px; }
+  .row { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+  .tag { font-size:12px; padding:2px 8px; border-radius:99px; border:1px solid var(--line); color:var(--mut); }
+  .tag.linkedin { color:#0a66c2; border-color:#0a66c2; } .tag.instagram { color:#c13584; border-color:#c13584; }
+  .tag.failed, .tag.erro { color:var(--bad); border-color:var(--bad); } .tag.approved { color:var(--warn); border-color:var(--warn); } .tag.published, .tag.ok { color:var(--ok); border-color:var(--ok); }
+  button.b { font:inherit; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+  button.b.go { background:var(--ok); border-color:var(--ok); color:#fff; } button.b.no { color:var(--bad); border-color:var(--bad); }
+  pre.body { white-space:pre-wrap; font:inherit; margin:8px 0; } textarea, input[type=text] { width:100%; font:inherit; padding:8px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); }
+  textarea { min-height:160px; } .acts { display:flex; gap:8px; margin-top:8px; } .err { color:var(--bad); font-size:13px; }
+  .media { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; } .media img { max-height:140px; border-radius:8px; border:1px solid var(--line); }
+  .sw { position:relative; width:42px; height:24px; } .sw input { opacity:0; width:100%; height:100%; margin:0; position:absolute; cursor:pointer; }
+  .sw i { position:absolute; inset:0; border-radius:99px; background:var(--line); transition:.15s; pointer-events:none; } .sw i::after { content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:.15s; }
+  .sw input:checked + i { background:var(--ok); } .sw input:checked + i::after { left:21px; }
+  input.sched { width:160px; font-family:ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<header><h1>Assistente do João</h1><span class="mut" id="stamp"></span></header>
+<nav id="tabs"></nav>
+<main id="view"></main>
+<script>
+const $ = (s) => document.querySelector(s);
+const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); for (const k of kids.flat()) if (k != null) e.append(k); return e; };
+const fmt = (iso) => iso ? new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short' }) : '—';
+const api = async (path, method = 'GET', body) => {
+  const r = await fetch('/api' + path, { method, headers: { 'x-assistente': '1', 'content-type': 'application/json' }, body: body && JSON.stringify(body) });
+  const j = await r.json(); if (!r.ok) throw new Error(j.error); return j;
+};
+const CHANNELS = { linkedin: 'LinkedIn', instagram: 'Instagram', email: 'Email', tasks: 'Tarefas' };
+let S = null, tab = 'fila', editing = null;
+
+async function load() { S = await api('/state'); $('#stamp').textContent = 'atualizado ' + new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' }); render(); }
+const act = (fn) => async (...a) => { try { await fn(...a); } catch (e) { alert(e.message); } await load(); };
+
+function render() {
+  const pend = S.pending.length;
+  const tabs = [['fila', `Fila de aprovação (${pend})`], ['rotinas', 'Rotinas'], ['historico', 'Histórico']];
+  $('#tabs').replaceChildren(...tabs.map(([k, t]) => el('button', { className: tab === k ? 'on' : '', textContent: t, onclick: () => { tab = k; render(); } })));
+  $('#view').replaceChildren(...({ fila, rotinas, historico }[tab])());
+}
+
+function draftCard(d, actions) {
+  const media = (d.media || []).filter((m) => m.path).map((m) => el('img', { src: '/media?p=' + encodeURIComponent(m.path), alt: m.alt || '' }));
+  return el('div', { className: 'card' },
+    el('div', { className: 'row' }, el('strong', { textContent: d.title }),
+      el('span', {}, el('span', { className: 'tag ' + d.channel, textContent: CHANNELS[d.channel] || d.channel }), ' ', el('span', { className: 'tag ' + d.status, textContent: { pending: 'aguardando', approved: 'aprovado', publishing: 'publicando', failed: 'falhou', published: 'publicado', rejected: 'recusado' }[d.status] }))),
+    el('div', { className: 'mut', textContent: `${d.routine} · criado ${fmt(d.created_at)}` + (d.scheduled_for ? ` · publicar em ${fmt(d.scheduled_for)}` : '') }),
+    media.length ? el('div', { className: 'media' }, media) : null,
+    el('pre', { className: 'body', textContent: d.body }),
+    d.error ? el('div', { className: 'err', textContent: d.error }) : null,
+    d.url ? el('a', { href: d.url, target: '_blank', rel: 'noopener', textContent: d.url }) : null,
+    actions);
+}
+
+function editForm(d) {
+  const t = el('input', { type: 'text', value: d.title }), b = el('textarea', { value: d.body });
+  return el('div', { className: 'card' }, el('div', { className: 'mut', textContent: `Editando · ${d.routine}` }), t, el('div', { style: 'height:8px' }), b,
+    el('div', { className: 'acts' },
+      el('button', { className: 'b go', textContent: 'Salvar', onclick: act(async () => { await api('/drafts/' + d.id, 'PUT', { title: t.value, body: b.value }); editing = null; }) }),
+      el('button', { className: 'b', textContent: 'Cancelar', onclick: () => { editing = null; render(); } })));
+}
+
+function fila() {
+  if (!S.pending.length) return [el('p', { className: 'mut', textContent: 'Nada esperando por você.' })];
+  const groups = {};
+  for (const d of S.pending) (groups[d.channel] ??= []).push(d);
+  return Object.entries(groups).flatMap(([ch, ds]) => [
+    el('h3', { textContent: `${CHANNELS[ch] || ch} (${ds.length})` }),
+    ...ds.map((d) => editing === d.id ? editForm(d) : draftCard(d, ['approved', 'publishing'].includes(d.status)
+      ? el('div', { className: 'mut', textContent: 'Aprovado, aguardando o horário de publicar.' })
+      : el('div', { className: 'acts' },
+        el('button', { className: 'b go', textContent: d.status === 'failed' ? 'Aprovar de novo' : 'Aprovar', onclick: act(() => api(`/drafts/${d.id}/approve`, 'POST')) }),
+        el('button', { className: 'b', textContent: 'Editar', onclick: () => { editing = d.id; render(); } }),
+        el('button', { className: 'b no', textContent: 'Recusar', onclick: act(() => api(`/drafts/${d.id}/reject`, 'POST')) })))),
+  ]);
+}
+
+function rotinas() {
+  const out = S.routines.map((r) => {
+    const sched = el('input', { type: 'text', className: 'sched', value: r.schedule || '', title: 'cron: min hora dia mês dia-da-semana (fuso São Paulo)' });
+    const sw = el('label', { className: 'sw' }, el('input', { type: 'checkbox', checked: r.enabled, onchange: act((e) => api('/routines/' + r.id, 'POST', { enabled: e.target.checked })) }), el('i'));
+    return el('div', { className: 'card' },
+      el('div', { className: 'row' }, el('div', {}, el('strong', { textContent: r.name }), ' ', el('span', { className: 'tag ' + r.channel, textContent: CHANNELS[r.channel] || r.channel })), sw),
+      el('div', { className: 'mut', textContent: r.description }),
+      el('div', { className: 'row', style: 'margin-top:10px' },
+        el('div', {}, 'Agenda ', sched, ' ', el('button', { className: 'b', textContent: 'Salvar agenda', onclick: act(() => api('/routines/' + r.id, 'POST', { schedule: sched.value })) })),
+        el('div', {}, el('button', { className: 'b', textContent: 'Rodar agora', onclick: act(() => api(`/routines/${r.id}/run`, 'POST')) }))),
+      el('div', { className: 'mut', style: 'margin-top:8px' },
+        `Última execução: ${fmt(r.lastRunAt)} `, r.lastStatus ? el('span', { className: 'tag ' + r.lastStatus, textContent: r.lastStatus }) : '', ` · Próxima: ${r.enabled ? fmt(r.nextRun) : 'desligada'}`),
+      r.lastError ? el('div', { className: 'err', textContent: r.lastError }) : null);
+  });
+  for (const e of S.loadErrors) out.push(el('div', { className: 'card err', textContent: `Rotina "${e.id}" não carregou: ${e.error}` }));
+  if (!out.length) out.push(el('p', { className: 'mut', textContent: 'Nenhuma rotina instalada.' }));
+  return out;
+}
+
+function historico() {
+  if (!S.history.length) return [el('p', { className: 'mut', textContent: 'Ainda não há histórico.' })];
+  return S.history.map((d) => draftCard(d));
+}
+
+load(); setInterval(() => { if (editing === null && !document.activeElement?.matches('input,textarea')) load(); }, 15000);
+</script>
+</body>
+</html>
