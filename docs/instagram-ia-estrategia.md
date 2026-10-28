@@ -57,3 +57,15 @@ Conta tipo **Profissional (Criador de conteúdo)**, obrigatório para publicar p
 2. Vincular a uma Página do Facebook (exigência da Meta para publicar por API).
 3. Conectar essa conta no Composio (toolkit `instagram`) pelo link que o painel gerar.
 4. Avisar na tarefa o @ final, para travar a publicação nele.
+
+## Reels: 3 fluxos (pedido do João)
+
+| Tipo | Quem grava | O assistente faz |
+|---|---|---|
+| `roteiro_joao` | João, vídeo no celular (20-45 s, gancho nos 2 primeiros segundos) | corta silêncios, legenda queimada em PT, música livre, 9:16, capa |
+| `imagens` | ninguém | cartões de texto animados + música, sozinho |
+| `voz_joao` | João, só a narração (áudio) | cartões + narração, legenda sincronizada, capa |
+
+Fluxo no painel: rascunho nasce em `needs_joao` com `needs {type: record_video|record_audio, script, notes, status}` → João sobe o arquivo (`POST /api/drafts/:id/upload`) → `processing` → a rotina edita (ffmpeg local) e devolve em `pending` com `video_final` + `cover` → João aprova → publica. Nada publica sem aprovação.
+
+Edição: ffmpeg local (sem serviço pago). Música sintetizada pelo próprio ffmpeg (livre de direitos por construção). Legenda: transcrição local (whisper.cpp) se `WHISPER_BIN` e `WHISPER_MODEL` estiverem no env; sem isso, usa as falas do roteiro (aproximação por duração, o João confere no painel antes de aprovar).

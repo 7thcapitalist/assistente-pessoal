@@ -7,7 +7,7 @@ const mkCtx = (env = {}, calls = []) => {
   return { drafts, calls, now: new Date('2026-10-28T12:00:00Z'), fastWait: true,
     createDraft: async (d) => drafts.push(d), log() {},
     state: { get: (k) => st[k], set: (k, v) => { st[k] = v } },
-    drafts_: null, env: (k) => env[k],
+    drafts_: null, env: (k) => ({ ASSISTENTE_DATA: '/tmp/ig-test-data', ...env })[k],
     composio: { call: async (name, a) => {
       const tool = name === 'COMPOSIO_MULTI_EXECUTE_TOOL' ? a.tools[0].tool_slug : name
       const args = name === 'COMPOSIO_MULTI_EXECUTE_TOOL' ? a.tools[0].arguments : a
@@ -17,7 +17,7 @@ const mkCtx = (env = {}, calls = []) => {
       return { data: { id: 'X1' } } } },
     listFn: [] }
 }
-const withList = (ctx, pend = []) => { ctx.drafts = Object.assign(ctx.drafts, {}); const arr = ctx.drafts; ctx.drafts = { list: async () => pend, push: (d) => arr.push(d), arr }; ctx.createDraft = async (d) => arr.push(d); return arr }
+const withList = (ctx, pend = []) => { ctx.drafts = Object.assign(ctx.drafts, {}); const arr = ctx.drafts; ctx.drafts = { list: async (q = {}) => pend.filter((d) => d.status === q.status), push: (d) => arr.push(d), arr }; ctx.createDraft = async (d) => arr.push(d); return arr }
 
 test('gera 8 rascunhos em horários de Brasília, sem hashtags', async () => {
   const ctx = mkCtx(); const arr = withList(ctx)
@@ -31,7 +31,7 @@ test('gera 8 rascunhos em horários de Brasília, sem hashtags', async () => {
   const datas = arr.map((d) => d.scheduledFor); assert.deepEqual(datas, [...datas].sort())
 })
 test('não gera de novo com pendentes', async () => {
-  const ctx = mkCtx(); const arr = withList(ctx, [{}]); await r.run(ctx); assert.equal(arr.length, 0)
+  const ctx = mkCtx(); const arr = withList(ctx, [{ status: 'pending' }]); await r.run(ctx); assert.equal(arr.length, 0)
 })
 test('agenda ordenada e futura', () => {
   const a = agenda(new Date('2026-10-28T12:00:00Z')); assert.equal(a.length, 8); assert.ok(a[0] > new Date('2026-10-28T12:00:00Z'))
