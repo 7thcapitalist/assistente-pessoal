@@ -189,3 +189,15 @@ export function retryProcessing(db, id) {
   db.prepare("UPDATE drafts SET meta=?, error=NULL WHERE id=?").run(JSON.stringify({ ...d.meta, edicao: { tentativas: 0 } }), id);
   return getDraft(db, id);
 }
+
+// Troca só o meta (uso interno: marcas do Modo ausente), em qualquer estado.
+export function setMeta(db, id, meta) {
+  db.prepare('UPDATE drafts SET meta=? WHERE id=?').run(JSON.stringify(meta), id);
+  return getDraft(db, id);
+}
+// Devolve para a fila de aprovação um rascunho aprovado e ainda não publicado.
+export function unapprove(db, id) {
+  const d = getDraft(db, id);
+  db.prepare("UPDATE drafts SET status='pending', decided_at=NULL, meta=? WHERE id=? AND status='approved'").run(JSON.stringify({ ...d.meta, auto: undefined }), id);
+  return getDraft(db, id);
+}

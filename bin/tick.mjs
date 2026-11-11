@@ -6,5 +6,6 @@ import { tick } from '../src/runner.mjs';
 const res = await tick(openDb(), { paperclip: process.env.ASSISTENTE_PAPERCLIP !== '0' });
 for (const r of res.ran) console.log(`rotina ${r.id}: ${r.ok ? 'ok' : 'erro ' + r.error} (${r.drafts.length} rascunhos)`);
 for (const p of res.published) console.log(`publicação ${p.id}: ${p.ok ? p.url ?? 'ok' : 'falhou ' + p.error}`);
+for (const a of res.ausente) console.log('modo-ausente', JSON.stringify(a));
 for (const e of res.errors) console.error(`rotina inválida ${e.id}: ${e.error}`);
 for (const p of res.ponte ?? []) { for (const x of [...p.drafts, ...p.conexoes]) console.log('paperclip', JSON.stringify(x)); for (const e of p.errors) console.error('paperclip erro', e); }

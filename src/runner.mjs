@@ -7,7 +7,8 @@ import { env } from './env.mjs';
 import { makeComposio } from './composio.mjs';
 import { exposeFiles } from './publicurl.mjs';
 import { resolve } from 'node:path';
-import { syncPaperclip } from './paperclip.mjs';
+import { syncPaperclip, makePaperclip } from './paperclip.mjs';
+import { passoAusente } from './ausente.mjs';
 
 export const ROUTINES_DIR = process.env.ASSISTENTE_ROUTINES || new URL('../routines/', import.meta.url).pathname;
 const CHANNELS = ['linkedin', 'instagram', 'email', 'tasks'];
@@ -127,7 +128,7 @@ export async function processDrafts(db, routines, opts = {}) {
 }
 
 // Um ciclo do agendador (chamado pelo systemd timer): sincroniza rotinas, roda as vencidas, publica as aprovadas.
-export async function tick(db, { at = new Date(), dir, paperclip = false } = {}) {
+export async function tick(db, { at = new Date(), dir, paperclip = false, pc } = {}) {
   const { routines, errors } = await loadRoutines(dir);
   // O João usa só o Paperclip: primeiro traz de lá aprovações, textos novos e anexos; no fim leva o resultado do ciclo.
   const ponte = [];
@@ -144,7 +145,10 @@ export async function tick(db, { at = new Date(), dir, paperclip = false } = {})
     ran.push({ id: r.id, ...(await runRoutine(db, r)) });
   }
   const processed = await processDrafts(db, routines);
+  // Modo ausente: avisa e aprova após 24 h sem veto (só com a ponte ligada; desligado = devolve o que aprovou).
+  let ausente = [];
+  try { ausente = await passoAusente(db, paperclip ? (pc ?? makePaperclip()) : null, at); } catch (e) { errors.push({ id: 'modo-ausente', error: e.message }); }
   const published = await publishApproved(db, routines, at);
   if (paperclip) ponte.push(await syncPaperclip(db, { mediaDir: MEDIA_DIR(), composio: makeComposio() }));
-  return { ran, processed, published, errors, ponte };
+  return { ran, processed, published, errors, ponte, ausente };
 }

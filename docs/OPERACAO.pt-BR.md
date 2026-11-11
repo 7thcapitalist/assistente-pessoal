@@ -121,3 +121,11 @@ Saída: mp4 H.264/AAC 1080x1920 30 fps + capa jpg em `data/media/<id>/edit/`, ra
 - Publicação (só depois do Aprovar): trava de conta (`INSTAGRAM_IA_USERNAME` em `~/.config/assistente/env`, recusa @studio.frontstep e @yourstyle.snkrshop e qualquer conta diferente), recusa termo vedado, `[campo]` aberto e notícia sem fonte https. A Meta precisa baixar o mp4 por URL https: `src/publicurl.mjs` sobe um servidor local que serve só o mp4 e a capa em `/<token aleatório>/arquivo` e abre um túnel grátis `cloudflared` (trycloudflare, sem conta), derrubado assim que a publicação termina.
 - Exemplos gerados (voz **sintética** de teste, vídeo bruto de teste: o João real ainda não gravou): `docs/instagram/exemplos/reel-{A,B,C}.mp4` e capas. Telas: `docs/instagram/painel-*.png`.
 - Não testado: publicação real na Meta (falta a conta nova, o @ e a conexão no Composio, passos do João); o túnel foi testado de verdade (mp4 e capa respondem 200 em https).
+
+## Modo ausente (ASS-43, policy §4 / HOL-267)
+`node bin/modo.mjs on|off|status` (padrão: DESLIGADO). Com o modo ATIVO, o tick (a cada 5 min):
+1. rascunho pendente de tema aprovado e sem rosto/voz (LinkedIn texto; Instagram carrossel/card) recebe na tarefa o aviso "publico sozinho em 24 h";
+2. **Cancel** na tarefa veta; comentar `Texto:` recomeça as 24 h; **Done** publica já;
+3. passadas 24 h sem veto, o rascunho é aprovado e sai no horário marcado, com comentário na tarefa;
+4. reel (qualquer tipo), gravação dele, tema fora de `TEMAS_APROVADOS` (`src/ausente.mjs`) e outros canais esperam o João;
+5. ao desligar o modo, o que ele aprovou e ainda não saiu volta para a fila. Sem a ponte do Paperclip, nada é automático.
