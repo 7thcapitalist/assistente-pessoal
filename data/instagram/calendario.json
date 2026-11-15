@@ -225,44 +225,6 @@
       "arte": "Capa: 'Evidência ou não aconteceu'. Sem tela de sistema; só o João falando e texto na tela."
     },
     {
-      "id": "ig-01",
-      "data": "2026-12-01T12:00:00-03:00",
-      "pilar": "como_eu_faco",
-      "formato": "reel",
-      "tipo": "B_imagens",
-      "status": "rascunho",
-      "titulo": "3 regras para agente não sair do controle",
-      "legenda": "Agente sem regra faz bagunça rápida.\n\nTrês regras que eu uso para deixar agentes trabalharem sem eu ficar vigiando:\n1. Orçamento antes de qualquer tarefa pesada\n2. Nada vai ao ar sem o meu clique\n3. Quem escreve não é quem aprova\n\nQual dessas você ainda não usa? Comenta aqui.",
-      "cenas": [
-        {
-          "segundos": 3,
-          "card": "Agente sem regra faz bagunça rápida",
-          "naTela": "Agente sem regra faz bagunça rápida"
-        },
-        {
-          "segundos": 6,
-          "card": "1",
-          "naTela": "Regra 1: confira o orçamento antes da tarefa pesada"
-        },
-        {
-          "segundos": 6,
-          "card": "2",
-          "naTela": "Regra 2: nada vai ao ar sem aprovação humana"
-        },
-        {
-          "segundos": 6,
-          "card": "3",
-          "naTela": "Regra 3: quem escreve não aprova"
-        },
-        {
-          "segundos": 5,
-          "card": "Qual você ainda não usa?",
-          "naTela": "Qual você ainda não usa? Comenta"
-        }
-      ],
-      "arte": "Fundo escuro, texto branco grande, número da regra em destaque. Capa: 3 regras."
-    },
-    {
       "id": "ig-08",
       "data": "2026-11-15T20:00:00-03:00",
       "pilar": "como_eu_faco",
@@ -564,6 +526,44 @@
         "Salva e segue"
       ],
       "arte": "Template dos carrosséis; sem print de sistema nem nome de ferramenta."
+    },
+    {
+      "id": "ig-01",
+      "data": "2026-12-01T12:00:00-03:00",
+      "pilar": "como_eu_faco",
+      "formato": "reel",
+      "tipo": "B_imagens",
+      "status": "rascunho",
+      "titulo": "3 regras para agente não sair do controle",
+      "legenda": "Agente sem regra faz bagunça rápida.\n\nTrês regras que eu uso para deixar agentes trabalharem sem eu ficar vigiando:\n1. Orçamento antes de qualquer tarefa pesada\n2. Nada vai ao ar sem o meu clique\n3. Quem escreve não é quem aprova\n\nQual dessas você ainda não usa? Comenta aqui.",
+      "cenas": [
+        {
+          "segundos": 3,
+          "card": "Agente sem regra faz bagunça rápida",
+          "naTela": "Agente sem regra faz bagunça rápida"
+        },
+        {
+          "segundos": 6,
+          "card": "1",
+          "naTela": "Regra 1: confira o orçamento antes da tarefa pesada"
+        },
+        {
+          "segundos": 6,
+          "card": "2",
+          "naTela": "Regra 2: nada vai ao ar sem aprovação humana"
+        },
+        {
+          "segundos": 6,
+          "card": "3",
+          "naTela": "Regra 3: quem escreve não aprova"
+        },
+        {
+          "segundos": 5,
+          "card": "Qual você ainda não usa?",
+          "naTela": "Qual você ainda não usa? Comenta"
+        }
+      ],
+      "arte": "Fundo escuro, texto branco grande, número da regra em destaque. Capa: 3 regras."
     }
   ]
 }

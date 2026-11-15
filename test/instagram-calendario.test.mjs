@@ -11,11 +11,15 @@ const palavras = (s) => s.trim().split(/\s+/).length
 test('4 semanas (3/11 a 29/11): 16 rascunhos, 3 Reels (1 A, 1 B, 1 C) + 1 carrossel por semana', () => {
   assert.equal(cal.rascunhos.length, 16)
   assert.equal(new Set(cal.rascunhos.map((r) => r.id)).size, 16, 'ids repetidos')
-  for (let i = 0; i < 16; i += 4) {
-    const sem = cal.rascunhos.slice(i, i + 4)
+  // semanas por data (seg-dom); ig-01 (Reel B) foi reagendado para 01/12 mas continua contando na semana 2
+  const limites = ['2026-11-10', '2026-11-17', '2026-11-24']
+  const semanaDe = (r) => (r.id === 'ig-01' ? 1 : limites.filter((l) => r.data.slice(0, 10) >= l).length)
+  for (let i = 0; i < 4; i++) {
+    const sem = cal.rascunhos.filter((r) => semanaDe(r) === i)
+    assert.equal(sem.length, 4, `semana ${i + 1}: 4 itens`)
     assert.equal(sem.filter((r) => r.formato === 'reel').length, 3)
     assert.equal(sem.filter((r) => r.formato === 'carrossel').length, 1)
-    for (const t of ['A_gravar', 'B_imagens', 'C_voz']) assert.equal(sem.filter((r) => r.tipo === t).length, 1, `semana ${i / 4 + 1}: ${t}`)
+    for (const t of ['A_gravar', 'B_imagens', 'C_voz']) assert.equal(sem.filter((r) => r.tipo === t).length, 1, `semana ${i + 1}: ${t}`)
   }
   const datas = cal.rascunhos.map((r) => r.data)
   assert.deepEqual(datas, [...datas].sort())
