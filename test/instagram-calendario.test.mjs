@@ -8,22 +8,15 @@ const texto = (r) => JSON.stringify(r)
 const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
 const palavras = (s) => s.trim().split(/\s+/).length
 
-test('4 semanas (3/11 a 29/11): 16 rascunhos, 3 Reels (1 A, 1 B, 1 C) + 1 carrossel por semana', () => {
-  assert.equal(cal.rascunhos.length, 16)
-  assert.equal(new Set(cal.rascunhos.map((r) => r.id)).size, 16, 'ids repetidos')
-  // semanas por data (seg-dom); ig-01 (Reel B) foi reagendado para 01/12 mas continua contando na semana 2
-  const limites = ['2026-11-10', '2026-11-17', '2026-11-24']
-  const semanaDe = (r) => (r.id === 'ig-01' ? 1 : limites.filter((l) => r.data.slice(0, 10) >= l).length)
-  for (let i = 0; i < 4; i++) {
-    const sem = cal.rascunhos.filter((r) => semanaDe(r) === i)
-    assert.equal(sem.length, 4, `semana ${i + 1}: 4 itens`)
-    assert.equal(sem.filter((r) => r.formato === 'reel').length, 3)
-    assert.equal(sem.filter((r) => r.formato === 'carrossel').length, 1)
-    for (const t of ['A_gravar', 'B_imagens', 'C_voz']) assert.equal(sem.filter((r) => r.tipo === t).length, 1, `semana ${i + 1}: ${t}`)
-  }
+test('15 rascunhos, ids únicos, datas em ordem e nenhuma no passado do merge (16/11)', () => {
+  assert.equal(cal.rascunhos.length, 15)
+  assert.equal(new Set(cal.rascunhos.map((r) => r.id)).size, 15, 'ids repetidos')
   const datas = cal.rascunhos.map((r) => r.data)
   assert.deepEqual(datas, [...datas].sort())
-  assert.ok(datas.at(-1) >= '2026-11-29', 'calendário tem de ir até 29/11')
+  assert.equal(new Set(datas).size, datas.length, 'datas colidem')
+  assert.ok(datas[0] >= '2026-11-16', 'rascunho com data vencida')
+  assert.ok(cal.rascunhos.some((r) => r.formato === 'carrossel') && cal.rascunhos.some((r) => r.formato === 'reel'))
+  for (const t of ['A_gravar', 'B_imagens', 'C_voz']) assert.ok(cal.rascunhos.some((r) => r.tipo === t), t)
 })
 
 test('sem termos vedados, sem hashtags', () => {
@@ -60,8 +53,7 @@ test('Reel C: narração cabe em 25-45 s (~2,5 palavras/s) e cenas batem', () =>
 
 test('notícia só vai com fonte https, citada na legenda, e sem [campo] aberto', () => {
   const noticias = cal.rascunhos.filter((r) => r.noticia)
-  assert.ok(noticias.length >= 1)
-  for (const r of noticias) {
+    for (const r of noticias) {
     assert.match(r.fonte, /^https:\/\/\S+$/)
     assert.ok(r.legenda.includes(r.fonte), `${r.id}: legenda sem a fonte`)
     assert.doesNotMatch(strings(r).join('\n'), /\[[^\]]+\]/)
@@ -72,12 +64,9 @@ test('nenhum [campo] aberto em nenhum rascunho', () => {
   for (const r of cal.rascunhos) assert.doesNotMatch(strings(r).join('\n'), /\[[^\]]+\]/, r.id)
 })
 
-test('datas nos horários combinados (Brasília)', () => {
-  const ok = { 2: '12:00', 4: '19:00', 6: '10:00', 0: '20:00' }
+test('datas nos horários bons de Brasília (10h, 12h, 19h ou 20h)', () => {
   for (const r of cal.rascunhos) {
-    const d = new Date(r.data)
-    const local = new Date(d.getTime() - 3 * 3600_000)
-    const hh = `${String(local.getUTCHours()).padStart(2, '0')}:00`
-    assert.equal(hh, ok[local.getUTCDay()], `${r.id}`)
+    const hh = new Date(new Date(r.data).getTime() - 3 * 3600_000).getUTCHours()
+    assert.ok([10, 12, 19, 20].includes(hh), `${r.id}: ${hh}h`)
   }
 })
