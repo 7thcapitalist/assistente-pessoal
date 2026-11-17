@@ -3,148 +3,6 @@
   "fuso": "America/Sao_Paulo",
   "rascunhos": [
     {
-      "id": "ig-04",
-      "data": "2026-11-16T20:00:00-03:00",
-      "pilar": "bastidores",
-      "formato": "carrossel",
-      "tipo": null,
-      "status": "rascunho",
-      "titulo": "Eu opero negócios com agentes de IA",
-      "legenda": "Eu não uso IA só para escrever texto. Eu montei um negócio em que agentes fazem o trabalho.\n\nProspecção e funil de vendas rodam quase sozinhos. Eu aprovo, eles executam.\n\nNesta conta eu conto o que aprendi.\n\nSalva este post e segue para acompanhar.",
-      "slides": [
-        "Eu opero negócios com agentes de IA",
-        "Não é prompt bonito: é operação rodando",
-        "Prospecção e funil de vendas feitos por agentes",
-        "Eu aprovo. Eles executam",
-        "Aqui: o que funciona, o que quebra e o conserto",
-        "Segue para acompanhar"
-      ],
-      "arte": "Fundo escuro, 1 ideia por slide, sem print de sistema nem nome de ferramenta."
-    },
-    {
-      "id": "ig-10",
-      "data": "2026-11-17T12:00:00-03:00",
-      "pilar": "como_eu_faco",
-      "formato": "reel",
-      "tipo": "C_voz",
-      "status": "rascunho",
-      "titulo": "Quem escreve não é quem aprova",
-      "legenda": "Agente que corrige o próprio trabalho é revisor que concorda com tudo.\n\nNa minha operação, quem faz não é quem confere, e nada vai ao ar sem o meu clique.\n\nVocê separa quem faz de quem confere? Comenta.",
-      "narracao": "Quando o mesmo agente escreve e aprova, ele sempre acha que está certo. Por isso eu separei os papéis. Um agente faz o trabalho. Outro, que não viu como foi feito, só confere o resultado contra o que foi pedido. E nada vai ao ar sem o meu clique. Parece burocracia, mas é isso que pega o erro antes de ele chegar ao público. Se o seu agente corrige o próprio trabalho, você tem um revisor que concorda com tudo. Separe quem faz de quem confere.",
-      "cenas": [
-        {
-          "segundos": 6,
-          "card": "Quem escreve não pode aprovar",
-          "naTela": "Quem escreve não aprova"
-        },
-        {
-          "segundos": 10,
-          "card": "Um agente faz. Outro só confere",
-          "naTela": "Um faz. Outro confere"
-        },
-        {
-          "segundos": 8,
-          "card": "Nada vai ao ar sem o meu clique",
-          "naTela": "Nada vai ao ar sem o meu clique"
-        },
-        {
-          "segundos": 8,
-          "card": "Revisor que concorda com tudo não revisa",
-          "naTela": "Revisor que concorda com tudo"
-        },
-        {
-          "segundos": 6,
-          "card": "Separe quem faz de quem confere",
-          "naTela": "Separe quem faz de quem confere"
-        }
-      ],
-      "arte": "Cards escuros, uma frase por card. Capa: Quem escreve não aprova."
-    },
-    {
-      "id": "ig-03",
-      "data": "2026-11-18T10:00:00-03:00",
-      "pilar": "bastidores",
-      "formato": "reel",
-      "tipo": "C_voz",
-      "status": "rascunho",
-      "titulo": "Prompt bonito não é operação",
-      "legenda": "Prompt bonito resolve uma tarefa. Operação resolve o mês inteiro.\n\nA diferença está em quem confere, quem aprova e o que acontece quando dá errado.\n\nVocê já passou de prompt para processo? Conta aqui.",
-      "narracao": "Prompt bonito resolve uma tarefa. Operação resolve o mês inteiro. Quando você usa IA só no chat, tudo depende de você lembrar de pedir. Quando você monta uma operação, o agente sabe qual é a tarefa, quem confere o resultado e o que fazer quando dá errado. Foi essa virada que me fez parar de usar IA como assistente e começar a usar como equipe. Se você ainda está na fase do prompt, tudo bem. O próximo passo é escrever o processo, não o prompt.",
-      "cenas": [
-        {
-          "segundos": 6,
-          "card": "Prompt bonito resolve uma tarefa",
-          "naTela": "Prompt bonito = 1 tarefa"
-        },
-        {
-          "segundos": 6,
-          "card": "Operação resolve o mês inteiro",
-          "naTela": "Operação = o mês inteiro"
-        },
-        {
-          "segundos": 10,
-          "card": "Quem pede? Quem confere? O que fazer se der errado?",
-          "naTela": "Quem confere? E se der errado?"
-        },
-        {
-          "segundos": 8,
-          "card": "De assistente para equipe",
-          "naTela": "De assistente para equipe"
-        },
-        {
-          "segundos": 6,
-          "card": "Escreva o processo, não o prompt",
-          "naTela": "Escreva o processo, não o prompt"
-        }
-      ],
-      "arte": "Cards de texto sobre fundo escuro, transição simples. Capa: Prompt x Operação."
-    },
-    {
-      "id": "ig-11",
-      "data": "2026-11-19T19:00:00-03:00",
-      "pilar": "erro_e_correcao",
-      "formato": "reel",
-      "tipo": "A_gravar",
-      "status": "rascunho",
-      "titulo": "Meu agente travou e não me avisou",
-      "legenda": "Meu agente travou e ficou quieto por horas.\n\nO erro não era dele, era meu: eu não tinha combinado o que fazer quando travasse. Hoje toda tarefa tem prazo e aviso.\n\nSeu agente avisa quando trava? Comenta.",
-      "roteiro": {
-        "duracaoSeg": 35,
-        "gancho": {
-          "segundos": 2,
-          "fala": "Meu agente parou e não me avisou.",
-          "naTela": "Meu agente parou e não avisou"
-        },
-        "blocos": [
-          {
-            "de": 2,
-            "ate": 10,
-            "fala": "Ele travou numa tarefa e ficou ali, quieto, por horas. Nenhum erro, nenhum aviso.",
-            "naTela": "Travou. Sem erro. Sem aviso"
-          },
-          {
-            "de": 10,
-            "ate": 20,
-            "fala": "O problema não era o agente. Era eu não ter combinado o que ele faz quando trava.",
-            "naTela": "O erro era meu"
-          },
-          {
-            "de": 20,
-            "ate": 31,
-            "fala": "Agora toda tarefa tem prazo. Passou do prazo sem resultado, ele me avisa e conta o que tentou.",
-            "naTela": "Prazo + aviso + o que tentou"
-          },
-          {
-            "de": 31,
-            "ate": 35,
-            "fala": "Seu agente avisa quando trava? Comenta.",
-            "naTela": "Seu agente avisa? Comenta"
-          }
-        ]
-      },
-      "arte": "Capa: 'Agente travou, ninguém soube'. Só o João falando e texto na tela; sem tela de sistema."
-    },
-    {
       "id": "ig-05",
       "data": "2026-11-20T12:00:00-03:00",
       "pilar": "como_eu_faco",
@@ -529,6 +387,148 @@
         "Salva e segue"
       ],
       "arte": "Mesmo template do primeiro carrossel; ícone simples por passo."
+    },
+    {
+      "id": "ig-04",
+      "data": "2026-12-08T12:00:00-03:00",
+      "pilar": "bastidores",
+      "formato": "carrossel",
+      "tipo": null,
+      "status": "rascunho",
+      "titulo": "Eu opero negócios com agentes de IA",
+      "legenda": "Eu não uso IA só para escrever texto. Eu montei um negócio em que agentes fazem o trabalho.\n\nProspecção e funil de vendas rodam quase sozinhos. Eu aprovo, eles executam.\n\nNesta conta eu conto o que aprendi.\n\nSalva este post e segue para acompanhar.",
+      "slides": [
+        "Eu opero negócios com agentes de IA",
+        "Não é prompt bonito: é operação rodando",
+        "Prospecção e funil de vendas feitos por agentes",
+        "Eu aprovo. Eles executam",
+        "Aqui: o que funciona, o que quebra e o conserto",
+        "Segue para acompanhar"
+      ],
+      "arte": "Fundo escuro, 1 ideia por slide, sem print de sistema nem nome de ferramenta."
+    },
+    {
+      "id": "ig-10",
+      "data": "2026-12-10T19:00:00-03:00",
+      "pilar": "como_eu_faco",
+      "formato": "reel",
+      "tipo": "C_voz",
+      "status": "rascunho",
+      "titulo": "Quem escreve não é quem aprova",
+      "legenda": "Agente que corrige o próprio trabalho é revisor que concorda com tudo.\n\nNa minha operação, quem faz não é quem confere, e nada vai ao ar sem o meu clique.\n\nVocê separa quem faz de quem confere? Comenta.",
+      "narracao": "Quando o mesmo agente escreve e aprova, ele sempre acha que está certo. Por isso eu separei os papéis. Um agente faz o trabalho. Outro, que não viu como foi feito, só confere o resultado contra o que foi pedido. E nada vai ao ar sem o meu clique. Parece burocracia, mas é isso que pega o erro antes de ele chegar ao público. Se o seu agente corrige o próprio trabalho, você tem um revisor que concorda com tudo. Separe quem faz de quem confere.",
+      "cenas": [
+        {
+          "segundos": 6,
+          "card": "Quem escreve não pode aprovar",
+          "naTela": "Quem escreve não aprova"
+        },
+        {
+          "segundos": 10,
+          "card": "Um agente faz. Outro só confere",
+          "naTela": "Um faz. Outro confere"
+        },
+        {
+          "segundos": 8,
+          "card": "Nada vai ao ar sem o meu clique",
+          "naTela": "Nada vai ao ar sem o meu clique"
+        },
+        {
+          "segundos": 8,
+          "card": "Revisor que concorda com tudo não revisa",
+          "naTela": "Revisor que concorda com tudo"
+        },
+        {
+          "segundos": 6,
+          "card": "Separe quem faz de quem confere",
+          "naTela": "Separe quem faz de quem confere"
+        }
+      ],
+      "arte": "Cards escuros, uma frase por card. Capa: Quem escreve não aprova."
+    },
+    {
+      "id": "ig-03",
+      "data": "2026-12-12T10:00:00-03:00",
+      "pilar": "bastidores",
+      "formato": "reel",
+      "tipo": "C_voz",
+      "status": "rascunho",
+      "titulo": "Prompt bonito não é operação",
+      "legenda": "Prompt bonito resolve uma tarefa. Operação resolve o mês inteiro.\n\nA diferença está em quem confere, quem aprova e o que acontece quando dá errado.\n\nVocê já passou de prompt para processo? Conta aqui.",
+      "narracao": "Prompt bonito resolve uma tarefa. Operação resolve o mês inteiro. Quando você usa IA só no chat, tudo depende de você lembrar de pedir. Quando você monta uma operação, o agente sabe qual é a tarefa, quem confere o resultado e o que fazer quando dá errado. Foi essa virada que me fez parar de usar IA como assistente e começar a usar como equipe. Se você ainda está na fase do prompt, tudo bem. O próximo passo é escrever o processo, não o prompt.",
+      "cenas": [
+        {
+          "segundos": 6,
+          "card": "Prompt bonito resolve uma tarefa",
+          "naTela": "Prompt bonito = 1 tarefa"
+        },
+        {
+          "segundos": 6,
+          "card": "Operação resolve o mês inteiro",
+          "naTela": "Operação = o mês inteiro"
+        },
+        {
+          "segundos": 10,
+          "card": "Quem pede? Quem confere? O que fazer se der errado?",
+          "naTela": "Quem confere? E se der errado?"
+        },
+        {
+          "segundos": 8,
+          "card": "De assistente para equipe",
+          "naTela": "De assistente para equipe"
+        },
+        {
+          "segundos": 6,
+          "card": "Escreva o processo, não o prompt",
+          "naTela": "Escreva o processo, não o prompt"
+        }
+      ],
+      "arte": "Cards de texto sobre fundo escuro, transição simples. Capa: Prompt x Operação."
+    },
+    {
+      "id": "ig-11",
+      "data": "2026-12-13T20:00:00-03:00",
+      "pilar": "erro_e_correcao",
+      "formato": "reel",
+      "tipo": "A_gravar",
+      "status": "rascunho",
+      "titulo": "Meu agente travou e não me avisou",
+      "legenda": "Meu agente travou e ficou quieto por horas.\n\nO erro não era dele, era meu: eu não tinha combinado o que fazer quando travasse. Hoje toda tarefa tem prazo e aviso.\n\nSeu agente avisa quando trava? Comenta.",
+      "roteiro": {
+        "duracaoSeg": 35,
+        "gancho": {
+          "segundos": 2,
+          "fala": "Meu agente parou e não me avisou.",
+          "naTela": "Meu agente parou e não avisou"
+        },
+        "blocos": [
+          {
+            "de": 2,
+            "ate": 10,
+            "fala": "Ele travou numa tarefa e ficou ali, quieto, por horas. Nenhum erro, nenhum aviso.",
+            "naTela": "Travou. Sem erro. Sem aviso"
+          },
+          {
+            "de": 10,
+            "ate": 20,
+            "fala": "O problema não era o agente. Era eu não ter combinado o que ele faz quando trava.",
+            "naTela": "O erro era meu"
+          },
+          {
+            "de": 20,
+            "ate": 31,
+            "fala": "Agora toda tarefa tem prazo. Passou do prazo sem resultado, ele me avisa e conta o que tentou.",
+            "naTela": "Prazo + aviso + o que tentou"
+          },
+          {
+            "de": 31,
+            "ate": 35,
+            "fala": "Seu agente avisa quando trava? Comenta.",
+            "naTela": "Seu agente avisa? Comenta"
+          }
+        ]
+      },
+      "arte": "Capa: 'Agente travou, ninguém soube'. Só o João falando e texto na tela; sem tela de sistema."
     }
   ]
 }
