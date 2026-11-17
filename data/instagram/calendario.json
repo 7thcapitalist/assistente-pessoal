@@ -3,25 +3,6 @@
   "fuso": "America/Sao_Paulo",
   "rascunhos": [
     {
-      "id": "ig-04",
-      "data": "2026-11-16T20:00:00-03:00",
-      "pilar": "bastidores",
-      "formato": "carrossel",
-      "tipo": null,
-      "status": "rascunho",
-      "titulo": "Eu opero negócios com agentes de IA",
-      "legenda": "Eu não uso IA só para escrever texto. Eu montei um negócio em que agentes fazem o trabalho.\n\nProspecção e funil de vendas rodam quase sozinhos. Eu aprovo, eles executam.\n\nNesta conta eu conto o que aprendi.\n\nSalva este post e segue para acompanhar.",
-      "slides": [
-        "Eu opero negócios com agentes de IA",
-        "Não é prompt bonito: é operação rodando",
-        "Prospecção e funil de vendas feitos por agentes",
-        "Eu aprovo. Eles executam",
-        "Aqui: o que funciona, o que quebra e o conserto",
-        "Segue para acompanhar"
-      ],
-      "arte": "Fundo escuro, 1 ideia por slide, sem print de sistema nem nome de ferramenta."
-    },
-    {
       "id": "ig-10",
       "data": "2026-11-17T12:00:00-03:00",
       "pilar": "como_eu_faco",
@@ -529,6 +510,25 @@
         "Salva e segue"
       ],
       "arte": "Mesmo template do primeiro carrossel; ícone simples por passo."
+    },
+    {
+      "id": "ig-04",
+      "data": "2026-12-08T12:00:00-03:00",
+      "pilar": "bastidores",
+      "formato": "carrossel",
+      "tipo": null,
+      "status": "rascunho",
+      "titulo": "Eu opero negócios com agentes de IA",
+      "legenda": "Eu não uso IA só para escrever texto. Eu montei um negócio em que agentes fazem o trabalho.\n\nProspecção e funil de vendas rodam quase sozinhos. Eu aprovo, eles executam.\n\nNesta conta eu conto o que aprendi.\n\nSalva este post e segue para acompanhar.",
+      "slides": [
+        "Eu opero negócios com agentes de IA",
+        "Não é prompt bonito: é operação rodando",
+        "Prospecção e funil de vendas feitos por agentes",
+        "Eu aprovo. Eles executam",
+        "Aqui: o que funciona, o que quebra e o conserto",
+        "Segue para acompanhar"
+      ],
+      "arte": "Fundo escuro, 1 ideia por slide, sem print de sistema nem nome de ferramenta."
     }
   ]
 }
