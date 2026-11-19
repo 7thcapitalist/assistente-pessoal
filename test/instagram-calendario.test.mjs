@@ -8,13 +8,13 @@ const texto = (r) => JSON.stringify(r)
 const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
 const palavras = (s) => s.trim().split(/\s+/).length
 
-test('15 rascunhos, ids únicos, datas em ordem e nenhuma no passado do merge (16/11)', () => {
+test('15 rascunhos, ids únicos, datas em ordem e nenhuma antes de 25/11', () => {
   assert.equal(cal.rascunhos.length, 15)
   assert.equal(new Set(cal.rascunhos.map((r) => r.id)).size, 15, 'ids repetidos')
   const datas = cal.rascunhos.map((r) => r.data)
   assert.deepEqual(datas, [...datas].sort())
   assert.equal(new Set(datas).size, datas.length, 'datas colidem')
-  assert.ok(datas[0] >= '2026-11-16', 'rascunho com data vencida')
+  assert.ok(datas[0] >= '2026-11-25', 'rascunho com data vencida')
   assert.ok(cal.rascunhos.some((r) => r.formato === 'carrossel') && cal.rascunhos.some((r) => r.formato === 'reel'))
   for (const t of ['A_gravar', 'B_imagens', 'C_voz']) assert.ok(cal.rascunhos.some((r) => r.tipo === t), t)
 })
