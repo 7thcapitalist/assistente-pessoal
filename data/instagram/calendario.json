@@ -3,141 +3,6 @@
   "fuso": "America/Sao_Paulo",
   "rascunhos": [
     {
-      "id": "ig-05",
-      "data": "2026-11-20T12:00:00-03:00",
-      "pilar": "como_eu_faco",
-      "formato": "reel",
-      "tipo": "C_voz",
-      "status": "rascunho",
-      "titulo": "Orçamento antes da tarefa",
-      "legenda": "Agente não tem noção de custo. Você precisa dar.\n\nAntes de qualquer tarefa pesada, a primeira pergunta é: quanto isso pode gastar? Se passar do limite, ele para e pede minha decisão.\n\nVocê controla o custo dos seus agentes? Comenta.",
-      "narracao": "Agente não tem noção de custo. Se você não der um limite, ele vai gastar o que precisar para terminar. Por isso a minha primeira regra é: antes de qualquer tarefa pesada, o agente confere quanto ainda pode gastar. Se a tarefa passa do limite, ele para e me pergunta. Parece detalhe, mas é isso que deixa eu dormir tranquilo com tudo rodando. Defina o limite antes de ligar o agente, não depois do susto.",
-      "cenas": [
-        {
-          "segundos": 6,
-          "card": "Agente não tem noção de custo",
-          "naTela": "Agente não tem noção de custo"
-        },
-        {
-          "segundos": 8,
-          "card": "Sem limite, ele gasta o que precisar",
-          "naTela": "Sem limite, ele gasta o que precisar"
-        },
-        {
-          "segundos": 10,
-          "card": "Regra: conferir o orçamento antes da tarefa pesada",
-          "naTela": "Confere o orçamento antes"
-        },
-        {
-          "segundos": 8,
-          "card": "Passou do limite? Para e pergunta",
-          "naTela": "Passou do limite? Para e pergunta"
-        },
-        {
-          "segundos": 6,
-          "card": "Limite antes de ligar, não depois do susto",
-          "naTela": "Limite antes do susto"
-        }
-      ],
-      "arte": "Cards escuros com um medidor simples desenhado (barra de orçamento), sem números reais. Capa: Limite antes do susto."
-    },
-    {
-      "id": "ig-12",
-      "data": "2026-11-21T10:00:00-03:00",
-      "pilar": "bastidores",
-      "formato": "reel",
-      "tipo": "B_imagens",
-      "status": "rascunho",
-      "titulo": "Tarefa boa tem 'pra quê' e 'pronto quando'",
-      "legenda": "Agente sem objetivo entrega qualquer coisa.\n\nToda tarefa que eu dou tem duas linhas: pra quê ela existe e como eu sei que está pronta. Sem isso, o agente adivinha, e adivinha mal.\n\nSalva e testa na próxima tarefa que você delegar.",
-      "cenas": [
-        {
-          "segundos": 4,
-          "card": "Tarefa boa, em 2 linhas",
-          "naTela": "Tarefa boa em 2 linhas"
-        },
-        {
-          "segundos": 7,
-          "card": "Pra quê: o motivo da tarefa",
-          "naTela": "Pra quê: o motivo"
-        },
-        {
-          "segundos": 7,
-          "card": "Pronto quando: como eu confiro",
-          "naTela": "Pronto quando: como eu confiro"
-        },
-        {
-          "segundos": 7,
-          "card": "Sem isso, o agente adivinha",
-          "naTela": "Sem isso ele adivinha"
-        },
-        {
-          "segundos": 5,
-          "card": "Teste na próxima tarefa",
-          "naTela": "Teste na próxima tarefa"
-        }
-      ],
-      "arte": "Cards escuros com as duas linhas em destaque. Capa: Pra quê + Pronto quando."
-    },
-    {
-      "id": "ig-13",
-      "data": "2026-11-22T20:00:00-03:00",
-      "pilar": "como_eu_faco",
-      "formato": "carrossel",
-      "tipo": null,
-      "status": "rascunho",
-      "titulo": "5 perguntas antes de dar uma tarefa a um agente",
-      "legenda": "Antes de passar uma tarefa a um agente, eu respondo cinco perguntas. Quando alguma fica sem resposta, a tarefa ainda não está pronta para ser delegada.\n\nSalva para usar na próxima.",
-      "slides": [
-        "5 perguntas antes de delegar a um agente",
-        "1. Pra quê essa tarefa existe?",
-        "2. Como eu sei que está pronta?",
-        "3. Quanto ela pode custar de tempo e dinheiro?",
-        "4. Quem confere o resultado?",
-        "5. O que ele faz se travar?",
-        "Salva e segue"
-      ],
-      "arte": "Mesmo template dos outros carrosséis; um número grande por slide."
-    },
-    {
-      "id": "ig-14",
-      "data": "2026-11-24T12:00:00-03:00",
-      "pilar": "bastidores",
-      "formato": "reel",
-      "tipo": "B_imagens",
-      "status": "rascunho",
-      "titulo": "Mais agentes não é mais resultado",
-      "legenda": "Mais agentes sem coordenação só viram mais retrabalho.\n\nO que me fez render mais foi dar a cada agente um papel claro e um jeito de passar o trabalho adiante, não aumentar a quantidade.\n\nVocê já sentiu isso? Comenta.",
-      "cenas": [
-        {
-          "segundos": 4,
-          "card": "Mais agentes = mais resultado?",
-          "naTela": "Mais agentes = mais resultado?"
-        },
-        {
-          "segundos": 7,
-          "card": "Sem coordenação, vira retrabalho",
-          "naTela": "Sem coordenação, vira retrabalho"
-        },
-        {
-          "segundos": 8,
-          "card": "O que ajudou: papel claro para cada um",
-          "naTela": "Papel claro para cada agente"
-        },
-        {
-          "segundos": 7,
-          "card": "E um jeito de passar o trabalho adiante",
-          "naTela": "Passar o trabalho adiante"
-        },
-        {
-          "segundos": 5,
-          "card": "Qualidade antes de quantidade",
-          "naTela": "Qualidade antes de quantidade"
-        }
-      ],
-      "arte": "Cards escuros, pergunta no primeiro e resposta nos seguintes. Capa: Mais agentes?"
-    },
-    {
       "id": "ig-15",
       "data": "2026-11-26T19:00:00-03:00",
       "pilar": "erro_e_correcao",
@@ -529,6 +394,141 @@
         ]
       },
       "arte": "Capa: 'Agente travou, ninguém soube'. Só o João falando e texto na tela; sem tela de sistema."
+    },
+    {
+      "id": "ig-05",
+      "data": "2026-12-15T12:00:00-03:00",
+      "pilar": "como_eu_faco",
+      "formato": "reel",
+      "tipo": "C_voz",
+      "status": "rascunho",
+      "titulo": "Orçamento antes da tarefa",
+      "legenda": "Agente não tem noção de custo. Você precisa dar.\n\nAntes de qualquer tarefa pesada, a primeira pergunta é: quanto isso pode gastar? Se passar do limite, ele para e pede minha decisão.\n\nVocê controla o custo dos seus agentes? Comenta.",
+      "narracao": "Agente não tem noção de custo. Se você não der um limite, ele vai gastar o que precisar para terminar. Por isso a minha primeira regra é: antes de qualquer tarefa pesada, o agente confere quanto ainda pode gastar. Se a tarefa passa do limite, ele para e me pergunta. Parece detalhe, mas é isso que deixa eu dormir tranquilo com tudo rodando. Defina o limite antes de ligar o agente, não depois do susto.",
+      "cenas": [
+        {
+          "segundos": 6,
+          "card": "Agente não tem noção de custo",
+          "naTela": "Agente não tem noção de custo"
+        },
+        {
+          "segundos": 8,
+          "card": "Sem limite, ele gasta o que precisar",
+          "naTela": "Sem limite, ele gasta o que precisar"
+        },
+        {
+          "segundos": 10,
+          "card": "Regra: conferir o orçamento antes da tarefa pesada",
+          "naTela": "Confere o orçamento antes"
+        },
+        {
+          "segundos": 8,
+          "card": "Passou do limite? Para e pergunta",
+          "naTela": "Passou do limite? Para e pergunta"
+        },
+        {
+          "segundos": 6,
+          "card": "Limite antes de ligar, não depois do susto",
+          "naTela": "Limite antes do susto"
+        }
+      ],
+      "arte": "Cards escuros com um medidor simples desenhado (barra de orçamento), sem números reais. Capa: Limite antes do susto."
+    },
+    {
+      "id": "ig-12",
+      "data": "2026-12-17T10:00:00-03:00",
+      "pilar": "bastidores",
+      "formato": "reel",
+      "tipo": "B_imagens",
+      "status": "rascunho",
+      "titulo": "Tarefa boa tem 'pra quê' e 'pronto quando'",
+      "legenda": "Agente sem objetivo entrega qualquer coisa.\n\nToda tarefa que eu dou tem duas linhas: pra quê ela existe e como eu sei que está pronta. Sem isso, o agente adivinha, e adivinha mal.\n\nSalva e testa na próxima tarefa que você delegar.",
+      "cenas": [
+        {
+          "segundos": 4,
+          "card": "Tarefa boa, em 2 linhas",
+          "naTela": "Tarefa boa em 2 linhas"
+        },
+        {
+          "segundos": 7,
+          "card": "Pra quê: o motivo da tarefa",
+          "naTela": "Pra quê: o motivo"
+        },
+        {
+          "segundos": 7,
+          "card": "Pronto quando: como eu confiro",
+          "naTela": "Pronto quando: como eu confiro"
+        },
+        {
+          "segundos": 7,
+          "card": "Sem isso, o agente adivinha",
+          "naTela": "Sem isso ele adivinha"
+        },
+        {
+          "segundos": 5,
+          "card": "Teste na próxima tarefa",
+          "naTela": "Teste na próxima tarefa"
+        }
+      ],
+      "arte": "Cards escuros com as duas linhas em destaque. Capa: Pra quê + Pronto quando."
+    },
+    {
+      "id": "ig-13",
+      "data": "2026-12-19T20:00:00-03:00",
+      "pilar": "como_eu_faco",
+      "formato": "carrossel",
+      "tipo": null,
+      "status": "rascunho",
+      "titulo": "5 perguntas antes de dar uma tarefa a um agente",
+      "legenda": "Antes de passar uma tarefa a um agente, eu respondo cinco perguntas. Quando alguma fica sem resposta, a tarefa ainda não está pronta para ser delegada.\n\nSalva para usar na próxima.",
+      "slides": [
+        "5 perguntas antes de delegar a um agente",
+        "1. Pra quê essa tarefa existe?",
+        "2. Como eu sei que está pronta?",
+        "3. Quanto ela pode custar de tempo e dinheiro?",
+        "4. Quem confere o resultado?",
+        "5. O que ele faz se travar?",
+        "Salva e segue"
+      ],
+      "arte": "Mesmo template dos outros carrosséis; um número grande por slide."
+    },
+    {
+      "id": "ig-14",
+      "data": "2026-12-21T12:00:00-03:00",
+      "pilar": "bastidores",
+      "formato": "reel",
+      "tipo": "B_imagens",
+      "status": "rascunho",
+      "titulo": "Mais agentes não é mais resultado",
+      "legenda": "Mais agentes sem coordenação só viram mais retrabalho.\n\nO que me fez render mais foi dar a cada agente um papel claro e um jeito de passar o trabalho adiante, não aumentar a quantidade.\n\nVocê já sentiu isso? Comenta.",
+      "cenas": [
+        {
+          "segundos": 4,
+          "card": "Mais agentes = mais resultado?",
+          "naTela": "Mais agentes = mais resultado?"
+        },
+        {
+          "segundos": 7,
+          "card": "Sem coordenação, vira retrabalho",
+          "naTela": "Sem coordenação, vira retrabalho"
+        },
+        {
+          "segundos": 8,
+          "card": "O que ajudou: papel claro para cada um",
+          "naTela": "Papel claro para cada agente"
+        },
+        {
+          "segundos": 7,
+          "card": "E um jeito de passar o trabalho adiante",
+          "naTela": "Passar o trabalho adiante"
+        },
+        {
+          "segundos": 5,
+          "card": "Qualidade antes de quantidade",
+          "naTela": "Qualidade antes de quantidade"
+        }
+      ],
+      "arte": "Cards escuros, pergunta no primeiro e resposta nos seguintes. Capa: Mais agentes?"
     }
   ]
 }
