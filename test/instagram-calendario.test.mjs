@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
-const cal = JSON.parse(readFileSync(new URL('../data/instagram/calendario.json', import.meta.url), 'utf8'))
+const cal = JSON.parse(readFileSync(new URL('./fixtures/calendario-exemplo.json', import.meta.url), 'utf8'))
 const VEDADOS = [/frontstep/i, /egg\s*champions/i, /roblox/i, /snkrshop/i, /yourstyle/i, /software house/i, /R\$\s*\d/]
 const texto = (r) => JSON.stringify(r)
 const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
@@ -69,4 +69,9 @@ test('datas nos horários bons de Brasília (10h, 12h, 19h ou 20h)', () => {
     const hh = new Date(new Date(r.data).getTime() - 3 * 3600_000).getUTCHours()
     assert.ok([10, 12, 19, 20].includes(hh), `${r.id}: ${hh}h`)
   }
+})
+
+test('calendário real não tem os itens dos rascunhos cancelados (ASS-6 a ASS-37)', () => {
+  const real = JSON.parse(readFileSync(new URL('../data/instagram/calendario.json', import.meta.url), 'utf8'))
+  assert.deepEqual(real.rascunhos, [])
 })

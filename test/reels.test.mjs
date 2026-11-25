@@ -1,3 +1,4 @@
+process.env.ASSISTENTE_CALENDARIO = new URL('./fixtures/calendario-exemplo.json', import.meta.url).pathname // calendário real zerado (ASS-68)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, existsSync } from 'node:fs';

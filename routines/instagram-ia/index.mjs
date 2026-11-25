@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { renderA, renderB, renderC, pickMusic } from '../../src/reels/render.mjs'
 import { renderSlides } from '../../src/reels/slides.mjs'
 
-const CALENDARIO = new URL('../../data/instagram/calendario.json', import.meta.url)
+const CALENDARIO = () => process.env.ASSISTENTE_CALENDARIO || new URL('../../data/instagram/calendario.json', import.meta.url)
 const USERNAME_KEY = 'INSTAGRAM_IA_USERNAME'
 const PROIBIDAS = ['studio.frontstep', 'yourstyle.snkrshop']
 // Nomes e detalhes que nunca podem ir ao ar (regra de conteúdo do João).
@@ -12,7 +12,7 @@ export function conteudoProibido(texto) {
   return VEDADOS.find((r) => r.test(texto)) || null
 }
 
-export const lerCalendario = () => JSON.parse(readFileSync(CALENDARIO, 'utf8')).rascunhos
+export const lerCalendario = () => JSON.parse(readFileSync(CALENDARIO(), 'utf8')).rascunhos
 const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
 const TIPO = { A_gravar: 'A', B_imagens: 'B', C_voz: 'C' }
 
