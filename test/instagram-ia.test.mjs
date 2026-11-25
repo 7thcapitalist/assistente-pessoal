@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+process.env.ASSISTENTE_CALENDARIO = new URL('./fixtures/calendario-exemplo.json', import.meta.url).pathname // calendário real foi zerado (ASS-68)
 import r, { montarRascunho, lerCalendario } from '../routines/instagram-ia/index.mjs'
 
 const mkCtx = (env = {}, calls = []) => {

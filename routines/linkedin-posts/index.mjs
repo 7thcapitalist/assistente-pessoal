@@ -37,7 +37,7 @@ export default {
     if (reciclado) ctx.log('banco de pautas esgotado: reciclando; adicione pautas novas em pautas.mjs');
     const body = montarTexto(pauta);
     if (body.length > MAX_CHARS) throw new Error(`pauta "${pauta.title}" passa de ${MAX_CHARS} caracteres`);
-    exigirLimpo(`${pauta.title}\n${body}`, `pauta "${pauta.title}"`);
+    exigirLimpo(`${pauta.title}\n${body}`, `pauta "${pauta.title}"`, { noticia: !!pauta.link });
     ctx.state.set('n', n + 1);
     ctx.createDraft({
       title: pauta.title,
@@ -48,7 +48,7 @@ export default {
   },
 
   async publish(draft, ctx) {
-    exigirLimpo(`${draft.title ?? ''}\n${draft.body}`, 'antes de publicar'); // cobre edição no painel
+    exigirLimpo(`${draft.title ?? ''}\n${draft.body}`, 'antes de publicar', { noticia: !!draft.meta?.link }); // cobre edição no painel
     if (draft.media?.length) throw new Error('imagem em post do LinkedIn ainda não é suportada; remova a mídia ou poste à mão');
     const lista = await ctx.composio.call('COMPOSIO_MANAGE_CONNECTIONS', { toolkits: [{ name: 'linkedin', action: 'list' }] });
     const conta = (lista?.data?.results?.linkedin?.accounts ?? []).find(ativa);

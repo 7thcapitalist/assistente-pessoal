@@ -12,17 +12,24 @@ export const TERMOS_PROIBIDOS = [
 ];
 
 // Número colado a uma contagem do negócio (ex.: "7 agentes", "882 testes") ou valor em dinheiro.
-const NUMERO_COPIAVEL = /\b\d[\d.,]*\s*(?:%|agentes?|testes?|scripts?|nucleos?|leads?|clientes?|sites?|jogos?|mensagens?|reais|usd|dolares?|mil|k)\b|r\$\s*\d|\$\s*\d/;
+const CONTAGEM = '\\b\\d[\\d.,]*\\s*(?:agentes?|testes?|scripts?|nucleos?|leads?|clientes?|sites?|jogos?|mensagens?|reais|usd|dolares?|mil|k)\\b';
+const NUMERO_COPIAVEL = new RegExp(`${CONTAGEM}|\\b\\d[\\d.,]*\\s*%|r\\$\\s*\\d|\\$\\s*\\d`);
+// Em notícia: % e preço de tabela pública do fabricante passam; contagem do negócio continua barrada.
+const NUMERO_NOTICIA = new RegExp(CONTAGEM);
 
-export function checarConteudo(texto) {
+// Notícia de IA com fonte oficial (meta.link): nomes públicos de modelo/empresa e preço de tabela pública
+// não revelam o negócio. Todo o resto continua barrado.
+const LIBERADOS_NOTICIA = ['openai', 'gpt', 'claude'];
+
+export function checarConteudo(texto, { noticia = false } = {}) {
   const t = norm(texto);
-  const achados = TERMOS_PROIBIDOS.filter((termo) => new RegExp(`(?<![a-z0-9])${termo.replace(/[$.*+?^()|[\]\\]/g, '\\$&')}(?![a-z0-9])`).test(t));
-  const num = t.match(NUMERO_COPIAVEL);
+  const achados = TERMOS_PROIBIDOS.filter((x) => !(noticia && LIBERADOS_NOTICIA.includes(x))).filter((termo) => new RegExp(`(?<![a-z0-9])${termo.replace(/[$.*+?^()|[\]\\]/g, '\\$&')}(?![a-z0-9])`).test(t));
+  const num = t.match(noticia ? NUMERO_NOTICIA : NUMERO_COPIAVEL);
   if (num) achados.push(`número: "${num[0]}"`);
   return { ok: achados.length === 0, achados };
 }
 
-export function exigirLimpo(texto, onde) {
-  const r = checarConteudo(texto);
+export function exigirLimpo(texto, onde, opts) {
+  const r = checarConteudo(texto, opts);
   if (!r.ok) throw new Error(`BLOQUEADO pelo filtro de conteúdo (${onde}): ${r.achados.join(', ')}`);
 }

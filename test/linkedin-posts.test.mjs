@@ -124,3 +124,12 @@ test('publish barra texto editado com termo proibido, sem chamar o Composio', as
   await assert.rejects(routine.publish({ id: 'd', title: 't', body: 'Vendo por R$ 99 no Roblox', media: [] }, ctx), /BLOQUEADO/);
   assert.equal(ctx.chamadas.length, 0);
 });
+
+test('notícia com fonte oficial: nome do fabricante, % e tabela pública passam; contagem do negócio e termos internos continuam barrados', async () => {
+  const { checarConteudo } = await import('../routines/linkedin-posts/filtro.mjs')
+  const t = 'A OpenAI lançou o GPT-6.2. Ficou 20% mais barato: US$ 8 por milhão de tokens.'
+  assert.equal(checarConteudo(t).ok, false)
+  assert.equal(checarConteudo(t, { noticia: true }).ok, true)
+  assert.equal(checarConteudo('A OpenAI lançou algo. Tenho 7 agentes.', { noticia: true }).ok, false)
+  assert.equal(checarConteudo('A OpenAI lançou algo. Meu cliente gostou.', { noticia: true }).ok, false)
+})
